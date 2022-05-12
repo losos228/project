@@ -1,4 +1,4 @@
-from turtle import position
+#from turtle import position
 import pygame
 import os
 #import networkx as nx
@@ -24,54 +24,54 @@ class intersection(pygame.sprite.Sprite):
     return getattr(self,key)
     
 
-map = {
-  "v1": intersection((50,50), ["v2","v3"], [2,3]),
-  "v2": intersection((100, 300),["v1"],[1, 3])  ,
-  "v3": intersection((350, 150),["v4", "v1"],[1, 3]),
-  "v4": intersection((400, 400),["v2", "v5"],[1]),
-  "v5": intersection((600, 400),["v4"],[1]),
-  "v6": intersection((600, 300),["v4", "v5"],[1])
-}
+map = [
+  intersection((50,50), [1,2], [2,3]),
+  intersection((100, 300),[0],[1, 3]),
+  intersection((350, 150),[3, 0, 5],[1, 3]),
+  intersection((400, 400),[1, 4],[1]),
+  intersection((600, 400),[3, 5],[1]),
+  intersection((700, 150),[3, 4],[1])
+]
 
 
 def draw_window():
   WIN.fill(GREEN)
   pygame.display.flip()
   visited = []
-  for node in map:
+  for i in range(len(map)):
     # Get node position and draw
-    x, y = map[node]["position"]
+    x, y = map[i]["position"]
     # Draw Nodes
-    pygame.draw.circle(WIN, DEEPBLUE,
-                      (x, y), RADIUS)
+    # pygame.draw.circle(WIN, DEEPBLUE,
+    #                   (x, y), RADIUS)
 
 
-    for neighbor in map[node]["neighbors"]:
+    for neighbor in map[i]["neighbors"]:
       edge = []
-      edge.append(node)
+      edge.append(i)
       edge.append(neighbor)
       edge = sorted(edge)
       visited.append(edge)
 
       if(visited.count(edge) > 1):
-        pygame.draw.line(WIN, DIMGRAY, map[node]["position"],
+        pygame.draw.line(WIN, DIMGRAY, map[i]["position"],
                                     map[neighbor]["position"],
                                     30 )
-        pygame.draw.line(WIN, WHITE, map[node]["position"],
+        pygame.draw.line(WIN, WHITE, map[i]["position"],
                                     map[neighbor]["position"],
                                     2 )
-        #print(f"[{node}] and [{neighbor}] DOUBLE EDGE")
+        #print(f"[{i}] and [{neighbor}] DOUBLE EDGE")
       else:
-        pygame.draw.line(WIN, DIMGRAY, map[node]["position"],
+        pygame.draw.line(WIN, DIMGRAY, map[i]["position"],
                                     map[neighbor]["position"],
                                     30 )
-        #print(f"[{node}] and [{neighbor}] SINGLE EDGE")
+        #print(f"[{i}] and [{neighbor}] SINGLE EDGE")
 
     # Update screen
     pygame.display.update()
     pygame.image.save(WIN, "images/background.jpg")
 
-    #print(f"Node {node}: X is {x} and Y is {y}\n")
+    #print(f"i {i}: X is {x} and Y is {y}\n")
 
 def main():
   clock = pygame.time.Clock()
@@ -95,10 +95,10 @@ def main():
 if __name__ == '__main__':
 
   main()
-  # Draw all nodes
+  # Draw all is
 
 
 
     #print(node)
-  ##print(map["v1"]["position"][0])
+  ##print(map[1]["position"][0])
   #main()
