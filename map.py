@@ -64,16 +64,16 @@ map = [
   intersection("v4",  (150, 50),  [0, 5],      [1, 1]),
   intersection("v5",  (250, 50),  [4, 9],      [1, 1]),
   intersection("v6",  (150, 150), [1, 4],      [1, 1]),
-  intersection("v7",  (150, 250), [2, 6],      [1]),
-  intersection("v8",  (150, 350), [3, 7],      [1, 1]),
-  intersection("v9",  (350, 50),  [5],         [1]),
+  intersection("v7",  (150, 250), [2, 6, 8],   [1, 1, 1]),
+  intersection("v8",  (150, 350), [3],         [1, 1]),
+  intersection("v9",  (350, 50),  [5,14],      [1, 1]),
 
   intersection("v10",  (450, 50),  [9, 11],    [1, 1]),
   intersection("v11",  (450, 150), [10],       [1, 1]),
-  intersection("v12",  (450, 250), [11],       [1, 1]),
+  intersection("v12",  (450, 250), [11, 13],   [1, 1]),
   intersection("v13",  (450, 350), [12],       [1]),
   intersection("v14",  (350, 150), [9, 15],    [1, 1]),
-  intersection("v15",  (350, 250), [14],       [1]),
+  intersection("v15",  (350, 250), [14,  12],  [1, 1]),
 ]
 
 
