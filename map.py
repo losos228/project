@@ -16,21 +16,27 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Graph")
 
 class intersection(pygame.sprite.Sprite):
+  def addOutgoing(self, car, goingTo):
+    self.outgoing.append((car, goingTo))
+  def removeFromOutgoing(self, car, goingTo):
+    self.outgoing.remove((car, goingTo))
+
   def __init__(self, position, neighbors, weights):
     self.position = position
     self.neighbors = neighbors
     self.weights = weights
+ #   self.outgoing = [][2] #car, going to
   def __getitem__ (self, key):
     return getattr(self,key)
     
 
 map = [
-  intersection((50,50), [1,2], [2,3]),
-  intersection((100, 300),[0],[1, 3]),
-  intersection((350, 150),[3, 0, 5],[1, 3]),
-  intersection((400, 400),[1, 4],[1]),
+  intersection((100,100), [1,2], [2,3]),
+  intersection((100, 400),[0],[1, 3]),
+  intersection((300, 100),[3, 0, 5],[1, 3]),
+  intersection((300, 400),[1, 4],[1]),
   intersection((600, 400),[3, 5],[1]),
-  intersection((700, 150),[3, 4],[1])
+  intersection((600, 100),[3, 4],[1])
 ]
 
 
