@@ -7,6 +7,8 @@ FPS = 60
 WIDTH, HEIGHT = 900, 500
 # Nodes radius
 RADIUS = 35
+# Distance between intersections
+DISTANCE = 50
 WHITE = (255, 255, 255)
 DEEPBLUE = (0, 191, 255)
 GREEN = (0, 250, 80)
@@ -19,39 +21,59 @@ pygame.init()
 FONT = pygame.font.SysFont('arial', 40)
 
 class intersection(pygame.sprite.Sprite):
-<<<<<<< HEAD
+  def addOutgoing(self, car, goingTo):
+    self.outgoing.append((car, goingTo))
+  def removeFromOutgoing(self, car, goingTo):
+    self.outgoing.remove((car, goingTo))
+
   def __init__(self, name, position, neighbors, weights):
     self.name = name
     self.position = position
     self.neighbors = neighbors
     self.weights = weights
     self.font = FONT
-    #WIN.blit(self.font.render("name my names", True, (WHITE)), self.position)
-    #pygame.display.update()
-=======
-  def addOutgoing(self, car, goingTo):
-    self.outgoing.append((car, goingTo))
-  def removeFromOutgoing(self, car, goingTo):
-    self.outgoing.remove((car, goingTo))
-
-  def __init__(self, position, neighbors, weights):
-    self.position = position
-    self.neighbors = neighbors
-    self.weights = weights
  #   self.outgoing = [][2] #car, going to
->>>>>>> 8578aad41f9e8c9ab925e4743c1bfc28783e4e25
   def __getitem__ (self, key):
     return getattr(self, key)
   #def add_text_to_map(self):
 
 
+# distance_between_intersections -> dbi
+def generate_map(num_of_intersections, dbi, is_fully_connected):
+  _map = []
+
+  for idx in range(num_of_intersections):
+    _name = f"v{idx}"
+    # generate positions
+    _position = (0, 0)
+    # generate neigbors
+    _neighbors = []
+    # generate weights
+    _weights = []
+    _map.append(intersection(_name, _position, _neighbors, _weights))
+
+  return _map
+
+
 map = [
-  intersection("v1", (50, 50), [1,2], [2,3]),
-  intersection("v2", (100, 300),[0],[1, 3]),
-  intersection("v3", (350, 150),[3, 0, 5],[1, 3]),
-  intersection("v4", (400, 400),[1, 4],[1]),
-  intersection("v5", (600, 400),[3, 5],[1]),
-  intersection("v6", (700, 150),[3, 4],[1])
+  #            name   position    neighbors    weights
+  intersection("v0",  (50, 50),   [1, 4, 5],   [2, 3, 1]),
+  intersection("v1",  (50, 150),  [0, 2],      [1, 3]),
+  intersection("v2",  (50, 250),  [1, 3, 7],   [1, 3]),
+  intersection("v3",  (50, 350),  [2],         [1]),
+  intersection("v4",  (150, 50),  [0, 5],      [1, 1]),
+  intersection("v5",  (250, 50),  [4, 9],      [1, 1]),
+  intersection("v6",  (150, 150), [1, 4],      [1, 1]),
+  intersection("v7",  (150, 250), [2, 6],      [1]),
+  intersection("v8",  (150, 350), [3, 7],      [1, 1]),
+  intersection("v9",  (350, 50),  [5],         [1]),
+
+  intersection("v10",  (450, 50),  [9, 11],    [1, 1]),
+  intersection("v11",  (450, 150), [10],       [1, 1]),
+  intersection("v12",  (450, 250), [11],       [1, 1]),
+  intersection("v13",  (450, 350), [12],       [1]),
+  intersection("v14",  (350, 150), [9, 15],    [1, 1]),
+  intersection("v15",  (350, 250), [14],       [1]),
 ]
 
 
@@ -64,7 +86,7 @@ def draw_window():
     #font = pygame.font.sysFont(map["name"], 30)
     # Get node position and draw
     x, y = map[i]["position"]
-    WIN.blit(map[i].font.render(map[i].name, True, (WHITE)), (x+20, y+20))
+    WIN.blit(map[i].font.render(map[i].name, True, (WHITE)), (x+10, y+10))
     # Draw Nodes
     # pygame.draw.circle(WIN, DEEPBLUE,
     #                   (x, y), RADIUS)
