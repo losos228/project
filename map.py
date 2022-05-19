@@ -46,12 +46,12 @@ class intersection(pygame.sprite.Sprite):
 
 
 map = [
-  intersection((50, 50), [1,2], [2,3]),
-  intersection((100, 300),[0],[1, 3]),
-  intersection((350, 150),[3, 0, 5],[1, 3]),
-  intersection((400, 400),[1, 4],[1]),
-  intersection((600, 400),[3, 5],[1]),
-  intersection((700, 150),[3, 4],[1])
+  intersection("v1", (50, 50), [1,2], [2,3]),
+  intersection("v2", (100, 300),[0],[1, 3]),
+  intersection("v3", (350, 150),[3, 0, 5],[1, 3]),
+  intersection("v4", (400, 400),[1, 4],[1]),
+  intersection("v5", (600, 400),[3, 5],[1]),
+  intersection("v6", (700, 150),[3, 4],[1])
 ]
 
 
