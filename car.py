@@ -9,6 +9,8 @@ import map
 import random
 pygame.init()
 
+cars = []
+
 green = (34,139,34)
 #red = (255,0,0)
 gameDisplay = pygame.display.set_mode((900,500))
@@ -29,6 +31,8 @@ def diffWithin(a, b, maxDif):
 
 class car(pygame.sprite.Sprite):
     def __init__(self, fr, to):
+        self.id = len(cars)
+        cars.append(self)
         self.calculateRoute(fr, to)
         self.image = pygame.image.load("images/redCar.png")
         self.posX = self.road[0]["position"][0]
@@ -130,6 +134,7 @@ class car(pygame.sprite.Sprite):
                 self.roadStep = self.roadStep+1
                 if(self.roadStep <= len(self.road)-1):
                     self.nextStep = self.road[self.roadStep]
+                    #self.road[self.roadStep-1].removeFromOutgoing(self.id, )
                     # print("d")
                     self.dirX = (self.nextStep["position"][0]-self.posX)/distance((self.posX, self.posY), self.nextStep["position"])
                     self.dirY = (self.nextStep["position"][1]-self.posY)/distance((self.posX, self.posY), self.nextStep["position"])
