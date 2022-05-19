@@ -19,6 +19,7 @@ pygame.init()
 FONT = pygame.font.SysFont('arial', 40)
 
 class intersection(pygame.sprite.Sprite):
+<<<<<<< HEAD
   def __init__(self, name, position, neighbors, weights):
     self.name = name
     self.position = position
@@ -27,18 +28,30 @@ class intersection(pygame.sprite.Sprite):
     self.font = FONT
     #WIN.blit(self.font.render("name my names", True, (WHITE)), self.position)
     #pygame.display.update()
+=======
+  def addOutgoing(self, car, goingTo):
+    self.outgoing.append((car, goingTo))
+  def removeFromOutgoing(self, car, goingTo):
+    self.outgoing.remove((car, goingTo))
+
+  def __init__(self, position, neighbors, weights):
+    self.position = position
+    self.neighbors = neighbors
+    self.weights = weights
+ #   self.outgoing = [][2] #car, going to
+>>>>>>> 8578aad41f9e8c9ab925e4743c1bfc28783e4e25
   def __getitem__ (self, key):
     return getattr(self, key)
   #def add_text_to_map(self):
 
 
 map = [
-  intersection("v1", (50, 50), [1,2], [2,3]),
-  intersection("v2", (100, 300),[0],[1, 3]),
-  intersection("v3", (350, 150),[3, 0, 5],[1, 3]),
-  intersection("v4", (400, 400),[1, 4],[1]),
-  intersection("v5", (600, 400),[3, 5],[1]),
-  intersection("v6", (700, 150),[3, 4],[1])
+  intersection((50, 50), [1,2], [2,3]),
+  intersection((100, 300),[0],[1, 3]),
+  intersection((350, 150),[3, 0, 5],[1, 3]),
+  intersection((400, 400),[1, 4],[1]),
+  intersection((600, 400),[3, 5],[1]),
+  intersection((700, 150),[3, 4],[1])
 ]
 
 
