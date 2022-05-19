@@ -15,29 +15,36 @@ DIMGRAY = (105, 105, 105)
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Graph")
 
+pygame.init()
+FONT = pygame.font.SysFont('arial', 40)
+
 class intersection(pygame.sprite.Sprite):
   def addOutgoing(self, car, goingTo):
     self.outgoing.append((car, goingTo))
   def removeFromOutgoing(self, car, goingTo):
     self.outgoing.remove((car, goingTo))
 
-  def __init__(self, position, neighbors, weights):
+  def __init__(self, name, position, neighbors, weights):
+    self.name = name
     self.position = position
     self.neighbors = neighbors
     self.weights = weights
+    self.font = FONT
  #   self.outgoing = [][2] #car, going to
   def __getitem__ (self, key):
-    return getattr(self,key)
-    
+    return getattr(self, key)
+  #def add_text_to_map(self):
+
 
 map = [
-  intersection((100,100), [1,2], [2,3]),
-  intersection((100, 400),[0],[1, 3]),
-  intersection((300, 100),[3, 0, 5],[1, 3]),
-  intersection((300, 400),[1, 4],[1]),
-  intersection((600, 400),[3, 5],[1]),
-  intersection((600, 100),[3, 4],[1])
+  intersection("v1", (50, 50), [1,2], [2,3]),
+  intersection("v2", (100, 300),[0],[1, 3]),
+  intersection("v3", (350, 150),[3, 0, 5],[1, 3]),
+  intersection("v4", (400, 400),[1, 4],[1]),
+  intersection("v5", (600, 400),[3, 5],[1]),
+  intersection("v6", (700, 150),[3, 4],[1])
 ]
+
 
 
 def draw_window():
@@ -45,8 +52,10 @@ def draw_window():
   pygame.display.flip()
   visited = []
   for i in range(len(map)):
+    #font = pygame.font.sysFont(map["name"], 30)
     # Get node position and draw
     x, y = map[i]["position"]
+    WIN.blit(map[i].font.render(map[i].name, True, (WHITE)), (x+20, y+20))
     # Draw Nodes
     # pygame.draw.circle(WIN, DEEPBLUE,
     #                   (x, y), RADIUS)
@@ -80,6 +89,11 @@ def draw_window():
     #print(f"i {i}: X is {x} and Y is {y}\n")
 
 def main():
+
+
+
+
+  #pygame.init()
   clock = pygame.time.Clock()
   run = True
 
@@ -89,6 +103,7 @@ def main():
     clock.tick(FPS)
     for event in pygame.event.get():
       if event.type == pygame.QUIT:
+        pygame.quit()
         run = False
 
 
