@@ -1,6 +1,8 @@
 #from turtle import position
+#from asyncio.windows_events import NULL
 import pygame
 import os
+import multiprocessing as mp
 #import networkx as nx
 
 FPS = 60
@@ -22,17 +24,47 @@ FONT = pygame.font.SysFont('arial', 40)
 
 class intersection(pygame.sprite.Sprite):
   def addOutgoing(self, car, goingTo):
+    print("adding: ", car)
+    self.outgoingLock.acquire()
     self.outgoing.append((car, goingTo))
+    self.outgoingLock.release()
+    print("to ",self.name)
+    print(self.name, self.outgoing)
   def removeFromOutgoing(self, car, goingTo):
+    print("removing ", car)
+    print("goingTo ", goingTo)
+    self.outgoingLock.acquire()
     self.outgoing.remove((car, goingTo))
+    self.outgoingLock.release()
+    print("removing finished ", car)
+
+  def getLastOnRoadTo(self, dest):
+    self.outgoingLock.acquire()
+    for i in range(len(self.outgoing)).reverse:
+      if(self.outgoing[i][1] == dest):
+        self.outgoingLock.release()
+        return i
+    self.outgoingLock.release()  
+    return NULL
+  def getFirstOnRoadTo(self, dest):
+    self.outgoingLock.acquire()
+    for i in range(len(self.outgoing)):
+      if(self.outgoing[i][1] == dest):
+        self.outgoingLock.release()
+        return i
+    self.outgoingLock.release()  
+    return NULL
 
   def __init__(self, name, position, neighbors, weights):
+    
     self.name = name
     self.position = position
     self.neighbors = neighbors
     self.weights = weights
-    self.font = FONT
- #   self.outgoing = [][2] #car, going to
+    #self.font = FONT
+    self.outgoingManager = mp.Manager()
+    self.outgoingLock = self.outgoingManager.Lock()
+    self.outgoing = self.outgoingManager.list() #car, going to
   def __getitem__ (self, key):
     return getattr(self, key)
   #def add_text_to_map(self):
@@ -57,7 +89,7 @@ def generate_map(num_of_intersections, dbi, is_fully_connected):
 
 map = [
   #            name   position    neighbors    weights
-  intersection("v0",  (50, 50),   [1, 4, 5],   [2, 3, 1]),
+  intersection("v0",  (50, 50),   [1, 4],      [2, 3]),
   intersection("v1",  (50, 150),  [0, 2],      [1, 3]),
   intersection("v2",  (50, 250),  [1, 3, 7],   [1, 3]),
   intersection("v3",  (50, 350),  [2],         [1]),
@@ -86,7 +118,7 @@ def draw_window():
     #font = pygame.font.sysFont(map["name"], 30)
     # Get node position and draw
     x, y = map[i]["position"]
-    WIN.blit(map[i].font.render(map[i].name, True, (WHITE)), (x+10, y+10))
+    WIN.blit(FONT.render(map[i].name, True, (WHITE)), (x+10, y+10))
     # Draw Nodes
     # pygame.draw.circle(WIN, DEEPBLUE,
     #                   (x, y), RADIUS)
