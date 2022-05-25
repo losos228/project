@@ -4,6 +4,7 @@ import pygame
 # import time
 import numpy as np
 # import sys
+from math import sqrt
 import os#,signal
 import map
 import random
@@ -43,23 +44,46 @@ class car(pygame.sprite.Sprite):
         self.carsPosLock = carsPosLock
         self.carsPos = carsPos
 
+        self.length = 30
+        self.height = 15 
+
         self.image = pygame.image.load("images/redCar.png")
         self.posX = map.map[self.road[0]]["position"][0]
         self.posY = map.map[self.road[0]]["position"][1]
        # self.road = road
         self.roadStep = 1
         self.nextStep = map.map[self.road[1]]
-        self.dirX = (self.nextStep["position"][0]-self.posX)/distance((self.posX, self.posY), self.nextStep["position"])
-        self.dirY = (self.nextStep["position"][1]-self.posY)/distance((self.posX, self.posY), self.nextStep["position"])
+        self.changeDirection()
         self.currRoadLen = distance((self.posX, self.posY), self.nextStep["position"])
         self.addedToOutgoing = 0
         self.prev = None
+        # self.color = (0,0,0)
         print("init finished")
 
         #super().__init__(*groups)
-    def render(self, screen):
-        screen.blit(self.image, (self.posX, self.posY))
-    
+    def render(self):
+        gameDisplay.blit(self.surf, [self.posX-(self.height*0.5*self.dirYsqrt)-0.4*self.height, self.posY+(self.height*0.5*self.dirXsqrt)-0.4*self.height])
+        #gameDisplay.blit(image, [self.posX-(7*self.dirY), self.posY+(5*self.dirX)])
+
+    def changeDirection(self):
+        self.dirX = (self.nextStep["position"][0]-self.posX)/distance((self.posX, self.posY), self.nextStep["position"])
+        self.dirY = (self.nextStep["position"][1]-self.posY)/distance((self.posX, self.posY), self.nextStep["position"])
+        if self.dirX < 0:
+            self.dirXsqrt = sqrt(-self.dirX)
+            self.dirXsqrt = -self.dirXsqrt
+        else:
+            self.dirXsqrt = sqrt(self.dirX)
+        if self.dirY < 0:
+            self.dirYsqrt = sqrt(-self.dirY)
+            self.dirYsqrt = -self.dirYsqrt
+        else:
+            self.dirYsqrt = sqrt(self.dirY)
+        angle = np.angle(self.dirX-self.dirY*1.0j, deg=True)
+        self.surf = pygame.Surface((self.length, self.height))
+        self.surf.set_colorkey((0,0,0))
+        self.surf.fill(self.color)
+        self.surf = pygame.transform.rotate(self.surf, angle)
+
     def calculateRoute(self, fr, to):
         self.destination = to
         #dijkstra's algorithm
@@ -68,10 +92,12 @@ class car(pygame.sprite.Sprite):
         table = [[0 for x in range(4)] for y in range(len(map.map))] #vertex, cost, previous, visited
 
         for i in range(len(map.map)):
+            # table.append([i,99999999999,-1,0])
             table[i][0] = i
             table[i][1] = 99999999999#np.Infinity
             table[i][2] = -1
             table[i][3] = 0
+        print("fr: ",fr, " table len: ", len(table))
         table[fr][1] = 0
         curr = fr
         next = fr
@@ -116,8 +142,8 @@ class car(pygame.sprite.Sprite):
         self.nextStep = map.map[self.road[1]]
         # print("calculate route finished")
         # print(self.road)
+        self.color = map.map[to].color
 
-        
 
     def move(self):
         if(self.roadStep > len(self.road)-1):
@@ -142,8 +168,7 @@ class car(pygame.sprite.Sprite):
             
             self.currRoadLen = distance((self.posX, self.posY), self.nextStep["position"])
             # print("distance ", distance((self.posX, self.posY), self.nextStep["position"]))
-            self.dirX = (self.nextStep["position"][0]-self.posX)/distance((self.posX, self.posY), self.nextStep["position"])
-            self.dirY = (self.nextStep["position"][1]-self.posY)/distance((self.posX, self.posY), self.nextStep["position"])
+            self.changeDirection()
             
         else:
             if not self.addedToOutgoing:
@@ -158,13 +183,13 @@ class car(pygame.sprite.Sprite):
 
             if self.prev != None:
                 self.carsPosLock.acquire()
-                if distance([self.carsPos[self.prev][0],self.carsPos[self.prev][1]], [self.posX, self.posY, self.road[self.roadStep]])  < 60:
+                if distance([self.carsPos[self.prev][0],self.carsPos[self.prev][1]], [self.posX, self.posY, self.road[self.roadStep]])  < self.length*1.2:
                     if self.road[self.roadStep] != self.carsPos[self.prev][2]:
                         self.prev = None
                     else:
-                        print(self.id, " breaking")
-                        gameDisplay.blit(self.image, [self.posX, self.posY])
                         self.carsPosLock.release()
+                        print(self.id, " breaking")
+                        self.render()
                         return
                 # else:
                 #     print("")
@@ -219,7 +244,7 @@ class car(pygame.sprite.Sprite):
 
                     self.nextStep = map.map[self.road[self.roadStep]]
                     # print("d")
-                    self.dirX = (self.nextStep["position"][0]-self.posX)/distance((self.posX, self.posY), self.nextStep["position"])
-                    self.dirY = (self.nextStep["position"][1]-self.posY)/distance((self.posX, self.posY), self.nextStep["position"])
+                    self.changeDirection()
                     self.currRoadLen = distance((self.posX, self.posY), self.nextStep["position"])
-            gameDisplay.blit(self.image, [self.posX, self.posY])
+            self.render()
+            

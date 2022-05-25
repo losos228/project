@@ -1,4 +1,5 @@
 
+from random import randrange
 import pygame
 import os
 import multiprocessing as mp
@@ -62,13 +63,16 @@ class intersection(pygame.sprite.Sprite):
     print("didn't find anything, going to ", dest, " Outgoing: ", self.outgoing, " Ignore: ", ignore)
     return None
 
-  def getFirstOnRoadTo(self, dest):
-    self.outgoingLock.acquire()
+  def getFirstOnRoadTo(self, dest, acquireLock = True):
+    if acquireLock:
+      self.outgoingLock.acquire()
     for i in range(len(self.outgoing)):
       if(self.outgoing[i][1] == dest):
-        self.outgoingLock.release()
+        if acquireLock:
+          self.outgoingLock.release()
         return i
-    self.outgoingLock.release()  
+    if acquireLock:
+      self.outgoingLock.release()  
     return None
 
   def __init__(self, name, position, neighbors, weights):
@@ -78,6 +82,9 @@ class intersection(pygame.sprite.Sprite):
     self.neighbors = neighbors
     self.weights = weights
     #self.font = FONT
+    self.color = [randrange(255), randrange(255), randrange(255)]
+    while self.color == [0,0,0]:
+      self.color = [randrange(255), randrange(255), randrange(255)]
 
     self.outgoingManager = mp.Manager()
     self.outgoingLock = self.outgoingManager.Lock()
@@ -167,14 +174,14 @@ map = [
   intersection("v4",  (150, 50),  [0, 5],      [1, 1]),
   intersection("v5",  (250, 50),  [4],      [ 1]),
   intersection("v6",  (150, 150), [1, 4],      [1, 1]),
-  intersection("v7",  (150, 250), [2, 6, 8, 15],   [1, 1, 1, 1]),
-  intersection("v8",  (150, 350), [3],         [1, 1]),
-  intersection("v9",  (350, 50),  [5,14],      [1, 1]),
+  intersection("v7",  (150, 250), [2, 6, 8, 15, 9],   [1, 1, 1, 1, 1]),
+  intersection("v8",  (150, 350), [3, 13, 15],         [1, 1, 1]),
+  intersection("v9",  (350, 50),  [5,14,7],      [1, 1, 1]),
 
   intersection("v10",  (450, 50),  [9, 11],    [1, 1]),
   intersection("v11",  (450, 150), [10],       [1, 1]),
   intersection("v12",  (450, 250), [11, 13],   [1, 1]),
-  intersection("v13",  (450, 350), [12],       [1]),
+  intersection("v13",  (450, 350), [12, 8],    [1, 1]),
   intersection("v14",  (350, 150), [9, 15],    [1, 1]),
   intersection("v15",  (350, 250), [14,  12],  [1, 1]),
 ]
@@ -187,10 +194,10 @@ def draw_map(map_):
     #font = pygame.font.sysFont(map["name"], 30)
     # Get node position and draw
     x, y = map_[i]["position"]
-    WIN.blit(FONT.render(map_[i].name, True, (WHITE)), (x+10, y+10))
     # Draw Nodes
     # pygame.draw.circle(WIN, DEEPBLUE,
     #                   (x, y), RADIUS)
+    
 
 
     for neighbor in map_[i]["neighbors"]:
@@ -215,7 +222,7 @@ def draw_map(map_):
                                     30 )
       """
         #print(f"[{i}] and [{neighbor}] SINGLE EDGE")
-
+    WIN.blit(FONT.render(map_[i].name, True, (map_[i].color)), (x+10, y+10))
     # Update screen
     pygame.display.update()
 
@@ -228,7 +235,6 @@ def draw_window():
     #font = pygame.font.sysFont(map["name"], 30)
     # Get node position and draw
     x, y = map[i]["position"]
-    WIN.blit(FONT.render(map[i].name, True, (WHITE)), (x+10, y+10))
     # Draw Nodes
     # pygame.draw.circle(WIN, DEEPBLUE,
     #                   (x, y), RADIUS)
@@ -255,6 +261,7 @@ def draw_window():
                                     30 )
         #print(f"[{i}] and [{neighbor}] SINGLE EDGE")
 
+    WIN.blit(FONT.render(map[i].name, True, (map[i].color)), (x+10, y+10))
     # Update screen
     pygame.display.update()
     pygame.image.save(WIN, "images/background.jpg")

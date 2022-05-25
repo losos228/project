@@ -44,13 +44,22 @@ def Main():
     print("map length: ", len(map.map))
     #redCar = car(100,100,[Map[0], Map[2], Map[3], Map[1]])
     children = []
-    for i in range(10):
+    for i in range(2):
         pid = os.fork()
         if pid == 0:
-            if i != 10:
-                carProcess(i,10, cars, carsLock, carsPos, carsPosLock)    #100,100,[Map[0], Map[2], Map[3], Map[1]])
-            else:
-                carProcess(10,5, cars, carsLock, carsPos, carsPosLock)
+            f = random.randrange(len(map.map))
+            print("f: ", f, " len(map.map): ", len(map.map))
+            t = f
+            while f == t:
+                t = random.randrange(len(map.map))
+            if (i == 0):
+                f = 7
+                t = 9
+            if (i == 1):
+                f = 9
+                t = 7
+            carProcess(f,t, cars, carsLock, carsPos, carsPosLock)    #100,100,[Map[0], Map[2], Map[3], Map[1]])
+            
             return
         children.append(pid)
     # pid = os.fork()
