@@ -36,7 +36,7 @@ def carProcess(fr,to, carsLoc, carsLockLoc, carsPosLoc, carsPosLockLoc):
         #gameDisplay.blit(redCar.image)
         #gameDisplay.blit(redCar.image, [redCar.posX, redCar.posY])
         redCar.move()
-        time.sleep(0.02)
+        time.sleep(0.019)
 
 
 def Main():
@@ -44,7 +44,7 @@ def Main():
     print("map length: ", len(map.map))
     #redCar = car(100,100,[Map[0], Map[2], Map[3], Map[1]])
     children = []
-    for i in range(2):
+    for i in range(15):
         pid = os.fork()
         if pid == 0:
             f = random.randrange(len(map.map))
@@ -53,11 +53,11 @@ def Main():
             while f == t:
                 t = random.randrange(len(map.map))
             if (i == 0):
-                f = 7
-                t = 9
+                f = 6
+                t = 2
             if (i == 1):
-                f = 9
-                t = 7
+                f = 0
+                t = 2
             carProcess(f,t, cars, carsLock, carsPos, carsPosLock)    #100,100,[Map[0], Map[2], Map[3], Map[1]])
             
             return
