@@ -66,6 +66,7 @@ class intersection(pygame.sprite.Sprite):
       self.outgoingLock.release()
     # print("to ",self.name)
     # print(self.name, self.outgoing)
+<<<<<<< HEAD
 
   def removeFromOutgoing(self, car, goingTo):
     """
@@ -79,11 +80,16 @@ class intersection(pygame.sprite.Sprite):
 
     ----------------------------------------------------
     """
+=======
+  def removeFromOutgoing(self, car, goingTo, acquireLock = True):
+>>>>>>> 5d3713bcad8df0eea85f5257123c00d9c47d7e8d
     # print("removing ", car)
     # print("goingTo ", goingTo)
-    self.outgoingLock.acquire()
+    if acquireLock:
+      self.outgoingLock.acquire()
     self.outgoing.remove((car, goingTo))
-    self.outgoingLock.release()
+    if acquireLock:
+      self.outgoingLock.release()
     # print("removing finished ", car)
 
   def getLastOnRoadTo(self, dest, ignore = -1, acquireLock = True):
@@ -104,18 +110,24 @@ class intersection(pygame.sprite.Sprite):
       for i in range(len(self.outgoing)-1, -1, -1):
         # print(ignore, " checking: ", i)
         if(self.outgoing[i][1] == dest and self.outgoing[i][0] != ignore):
+          found = self.outgoing[i][0]
           if acquireLock:
             self.outgoingLock.release()
-          print(" found: ", self.outgoing[i][0])
-          return self.outgoing[i][0]
+          print(" found: ", found)
+          return found
       # if(self.outgoing[0][1] == dest and self.outgoing[0][0] != ignore):
       #   if acquireLock:
       #     self.outgoingLock.release()
       #   print("found in first place: ", self.outgoing[0][0])
       #   return self.outgoing[0][0]
     if acquireLock:
+<<<<<<< HEAD
       self.outgoingLock.release()
     print("didn't find anything, going to ", dest, " Outgoing: ", self.outgoing, " Ignore: ", ignore)
+=======
+      self.outgoingLock.release()  
+    # print("didn't find anything, going to ", dest, " Outgoing: ", self.outgoing, " Ignore: ", ignore)
+>>>>>>> 524dcc7 (added the right hand rule and checking wether there is space after the intersection to leave)
     return None
 
   def getFirstOnRoadTo(self, dest, acquireLock = True):
@@ -134,14 +146,37 @@ class intersection(pygame.sprite.Sprite):
       self.outgoingLock.acquire()
     for i in range(len(self.outgoing)):
       if(self.outgoing[i][1] == dest):
+        found = self.outgoing[i][0]
         if acquireLock:
           self.outgoingLock.release()
-        return i
+        return found
     if acquireLock:
       self.outgoingLock.release()
     return None
 
 
+<<<<<<< HEAD
+=======
+    self.name = name
+    self.position = position
+    self.neighbors = neighbors
+    self.neighborsAngles = [len(self.neighbors)]
+    self.neighborsFrom = []
+    #self.font = FONT
+<<<<<<< HEAD
+=======
+    self.color = [randrange(255), randrange(255), randrange(255)]
+    while self.color == [0,0,0]:
+      self.color = [randrange(255), randrange(255), randrange(255)]
+
+>>>>>>> origin
+    self.outgoingManager = mp.Manager()
+    self.outgoingLock = self.outgoingManager.Lock()
+    self.outgoing = self.outgoingManager.list() #car, going to
+  def __getitem__ (self, key):
+    return getattr(self, key)
+  #def add_text_to_map(self):
+>>>>>>> 5d3713bcad8df0eea85f5257123c00d9c47d7e8d
 
 
 def map_helper(__map, __name, __position, __neighbors, __weights, __node_name):
@@ -273,7 +308,7 @@ map = [
   intersection("v3",  (50, 350),  [2],         [1]),
   intersection("v4",  (150, 50),  [0, 5],      [1, 1]),
   intersection("v5",  (250, 50),  [4],      [ 1]),
-  intersection("v6",  (150, 150), [1, 4],      [1, 1]),
+  intersection("v6",  (170, 150), [1, 4],      [1, 1]),
   intersection("v7",  (150, 250), [2, 6, 8, 15, 9],   [1, 1, 1, 1, 1]),
   intersection("v8",  (150, 350), [3, 13, 15],         [1, 1, 1]),
   intersection("v9",  (350, 50),  [5,14,7],      [1, 1, 1]),
@@ -344,6 +379,52 @@ def draw_map(map_):
     WIN.blit(FONT.render(map_[i].name, True, (map_[i].color)), (x+10, y+10))
     # Update screen
     pygame.display.update()
+<<<<<<< HEAD
+=======
+
+
+#draw_window not only draws the window, but also adds intersections to neiborsFrom
+
+def draw_window():
+  WIN.fill(GREEN)
+  pygame.display.flip()
+  visited = []
+  for i in range(len(map)):
+    #font = pygame.font.sysFont(map["name"], 30)
+    # Get node position and draw
+    x, y = map[i]["position"]
+    # Draw Nodes
+    # pygame.draw.circle(WIN, DEEPBLUE,
+    #                   (x, y), RADIUS)
+
+
+    for neighbor in map[i]["neighbors"]:
+      edge = []
+      edge.append(i)
+      edge.append(neighbor)
+      edge = sorted(edge)
+      visited.append(edge)
+
+      map[neighbor].neighborsFrom.append(i)
+
+      if(visited.count(edge) > 1):
+        pygame.draw.line(WIN, DIMGRAY, map[i]["position"],
+                                    map[neighbor]["position"],
+                                    40 )
+        pygame.draw.line(WIN, WHITE, map[i]["position"],
+                                    map[neighbor]["position"],
+                                    2 )
+        #print(f"[{i}] and [{neighbor}] DOUBLE EDGE")
+      else:
+        pygame.draw.line(WIN, DIMGRAY, map[i]["position"],
+                                    map[neighbor]["position"],
+                                    30 )
+        #print(f"[{i}] and [{neighbor}] SINGLE EDGE")
+
+    WIN.blit(FONT.render(map[i].name, True, (map[i].color)), (x+10, y+10))
+    # Update screen
+    pygame.display.update()
+>>>>>>> 524dcc7 (added the right hand rule and checking wether there is space after the intersection to leave)
     pygame.image.save(WIN, "images/background.jpg")
 
 def main():
