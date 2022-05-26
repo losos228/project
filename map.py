@@ -49,13 +49,16 @@ class intersection(pygame.sprite.Sprite):
   def addOutgoing(self, car, goingTo, acquireLock = True):
     """
     ----------------------------------------------------
-    Function to
+    Function to:
+    Add a car to the outgoing table
     ----------------------------------------------------
     Parameters:
-
+    car(int): the position of the car in the cars table
+    goingTo(int): the intersection on road to which the car is
+    acquireLock(bool, optional): whether or not to acquire the lock to the outgoing table
     ----------------------------------------------------
     Returns:
-
+    Doesn't return anything
     ----------------------------------------------------
     """
     # print("adding: ", car)
@@ -70,13 +73,18 @@ class intersection(pygame.sprite.Sprite):
   def removeFromOutgoing(self, car, goingTo, acquireLock = True):
     """
     ----------------------------------------------------
-    Function to
+    Function to:
+    Remove a car from the outgoing table
     ----------------------------------------------------
     Parameters:
-
+    car(int): the position of the car in the cars table
+    goingTo(int): the position in the map of the intersection on 
+      road to which the car is
+    acquireLock(bool, optional): whether or not to acquire the 
+      lock to the outgoing table
     ----------------------------------------------------
     Returns:
-
+    Doesn't return anything
     ----------------------------------------------------
     """
     # print("removing ", car)
@@ -91,13 +99,20 @@ class intersection(pygame.sprite.Sprite):
   def getLastOnRoadTo(self, dest, ignore = -1, acquireLock = True):
     """
     ----------------------------------------------------
-    Function to
+    Function to:
+    Get the last car on road to a specified intersection
     ----------------------------------------------------
     Parameters:
-
+    dest(int): the position in the map of the intersection on 
+      road to which the desired car is
+    ignore(int, optional): a car to ignore
+    acquireLock(bool, optional): whether or not to acquire the 
+      lock to the outgoing table
     ----------------------------------------------------
     Returns:
-
+    (int) the position in the cars table of the car that's the 
+      last on the road from the intersaction to dest
+    None if there is no suitable car on the road
     ----------------------------------------------------
     """
     if acquireLock:
@@ -121,22 +136,29 @@ class intersection(pygame.sprite.Sprite):
     print("didn't find anything, going to ", dest, " Outgoing: ", self.outgoing, " Ignore: ", ignore)
     return None
 
-  def getFirstOnRoadTo(self, dest, acquireLock = True):
+  def getFirstOnRoadTo(self, dest, ignore = -1,acquireLock = True):
     """
     ----------------------------------------------------
-    Function to
+    Function to:
+    Get the first car on road to a specified intersection
     ----------------------------------------------------
     Parameters:
-
+    dest(int): the position in the map of the intersection on 
+      road to which the desired car is
+    ignore(int, optional): a car to ignore
+    acquireLock(bool, optional): whether or not to acquire the 
+      lock to the outgoing table
     ----------------------------------------------------
     Returns:
-
+    (int) the position in the cars table of the car that's the 
+      first on the road from the intersaction to dest
+    None if there is no suitable car on the road
     ----------------------------------------------------
     """
     if acquireLock:
       self.outgoingLock.acquire()
     for i in range(len(self.outgoing)):
-      if(self.outgoing[i][1] == dest):
+      if(self.outgoing[i][1] == dest and self.outgoing[i][0] != ignore):
         found = self.outgoing[i][0]
         if acquireLock:
           self.outgoingLock.release()
