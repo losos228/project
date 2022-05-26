@@ -25,7 +25,39 @@ pygame.init()
 FONT = pygame.font.SysFont('arial', 40)
 
 class intersection(pygame.sprite.Sprite):
+  """
+  Class implementing intersection of roads
+  """
+  def __init__(self, name, position, neighbors, weights):
+
+    self.name = name
+    self.position = position
+    self.neighbors = neighbors
+    self.neighborsAngles = [len(self.neighbors)]
+    #self.font = FONT
+    self.color = [randrange(255), randrange(255), randrange(255)]
+    while self.color == [0,0,0]:
+      self.color = [randrange(255), randrange(255), randrange(255)]
+
+    self.outgoingManager = mp.Manager()
+    self.outgoingLock = self.outgoingManager.Lock()
+    self.outgoing = self.outgoingManager.list() #car, going to
+
+  def __getitem__ (self, key):
+    return getattr(self, key)
+
   def addOutgoing(self, car, goingTo, acquireLock = True):
+    """
+    ----------------------------------------------------
+    Function to
+    ----------------------------------------------------
+    Parameters:
+
+    ----------------------------------------------------
+    Returns:
+
+    ----------------------------------------------------
+    """
     # print("adding: ", car)
     if acquireLock:
       self.outgoingLock.acquire()
@@ -34,7 +66,19 @@ class intersection(pygame.sprite.Sprite):
       self.outgoingLock.release()
     # print("to ",self.name)
     # print(self.name, self.outgoing)
+
   def removeFromOutgoing(self, car, goingTo):
+    """
+    ----------------------------------------------------
+    Function to
+    ----------------------------------------------------
+    Parameters:
+
+    ----------------------------------------------------
+    Returns:
+
+    ----------------------------------------------------
+    """
     # print("removing ", car)
     # print("goingTo ", goingTo)
     self.outgoingLock.acquire()
@@ -43,6 +87,17 @@ class intersection(pygame.sprite.Sprite):
     # print("removing finished ", car)
 
   def getLastOnRoadTo(self, dest, ignore = -1, acquireLock = True):
+    """
+    ----------------------------------------------------
+    Function to
+    ----------------------------------------------------
+    Parameters:
+
+    ----------------------------------------------------
+    Returns:
+
+    ----------------------------------------------------
+    """
     if acquireLock:
       self.outgoingLock.acquire()
     if len(self.outgoing) > 0:
@@ -64,6 +119,17 @@ class intersection(pygame.sprite.Sprite):
     return None
 
   def getFirstOnRoadTo(self, dest, acquireLock = True):
+    """
+    ----------------------------------------------------
+    Function to
+    ----------------------------------------------------
+    Parameters:
+
+    ----------------------------------------------------
+    Returns:
+
+    ----------------------------------------------------
+    """
     if acquireLock:
       self.outgoingLock.acquire()
     for i in range(len(self.outgoing)):
@@ -75,29 +141,28 @@ class intersection(pygame.sprite.Sprite):
       self.outgoingLock.release()
     return None
 
-  def __init__(self, name, position, neighbors, weights):
 
-    self.name = name
-    self.position = position
-    self.neighbors = neighbors
-    self.neighborsAngles = [len(self.neighbors)]
-    #self.font = FONT
-<<<<<<< HEAD
-=======
-    self.color = [randrange(255), randrange(255), randrange(255)]
-    while self.color == [0,0,0]:
-      self.color = [randrange(255), randrange(255), randrange(255)]
-
->>>>>>> origin
-    self.outgoingManager = mp.Manager()
-    self.outgoingLock = self.outgoingManager.Lock()
-    self.outgoing = self.outgoingManager.list() #car, going to
-  def __getitem__ (self, key):
-    return getattr(self, key)
-  #def add_text_to_map(self):
 
 
 def map_helper(__map, __name, __position, __neighbors, __weights, __node_name):
+  """
+  ----------------------------------------------------
+  Function to help generate_map
+  to keep the code cleaner
+  ----------------------------------------------------
+  Parameters:
+    __map(list): Current map
+    __name(str): Name of current intersection
+    __position(int, int): Position of current intersection - (x, y)
+    __neighbors(list): Neighbors of current intersection
+    __weights(list): Weights for edges between current intersection and Neighbors
+    __node_name(int): helper intersection name to easier handle __name
+  ----------------------------------------------------
+  Returns:
+    __map(list): Map with all the intersections
+    __node_name(int): Name for the currently processed intersection
+  ----------------------------------------------------
+  """
   __map.append(intersection(__name, __position, __neighbors, __weights))
   __node_name = __node_name + 1
   return __map, __node_name
@@ -105,6 +170,22 @@ def map_helper(__map, __name, __position, __neighbors, __weights, __node_name):
 # distance_between_intersections -> dbi
 # num_of_intersections -> noi
 def generate_map(noi, dbi, offsetX = 0, offsetY = 0, is_fully_connected = True):
+  """
+  ----------------------------------------------------
+  Function to generate square like maps(2x2, 3x3, ...)
+  into a list for further use
+  ----------------------------------------------------
+  Parameters:
+    noi(int):
+    dbi(int):
+    offsetX(int):
+    offsetY(int):
+    is_fully_connected(bool):
+  ----------------------------------------------------
+  Returns:
+    __map(list):
+  ----------------------------------------------------
+  """
   __map = []
   __node_name = 0
   __current_pos = 0
@@ -206,6 +287,17 @@ map = [
 ]
 
 def draw_map(map_):
+  """
+  ----------------------------------------------------
+  Function to ...
+  ----------------------------------------------------
+  Parameters:
+    map_(list):
+  ----------------------------------------------------
+  Returns:
+    Does not return
+  ----------------------------------------------------
+  """
   WIN.fill(GREEN)
   pygame.display.flip()
   __visited = []
