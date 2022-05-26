@@ -17,17 +17,21 @@ carsManager = mp.Manager()
 carsLock = carsManager.Lock()
 cars = carsManager.list()
 
+carsPosManager = mp.Manager()
+carsPosLock = carsPosManager.Lock()
+carsPos = carsPosManager.list() #posX, posY, goingTo
+
 map.draw_window()
 background = pygame.image.load("images/background.jpg")
 
 # mapManager = mp.Manager()
 # mapLock = mapManager.Lock()
-Map = list()# mapManager.list(map.map)
+Map = list() #mapManager.list(map.map)
 
 
 
-def carProcess(fr,to, carsLoc, carsLockLoc):
-    redCar = car(fr,to, carsLoc, carsLockLoc)
+def carProcess(fr,to, carsLoc, carsLockLoc, carsPosLoc, carsPosLockLoc):
+    redCar = car(fr,to, carsLoc, carsLockLoc, carsPosLoc, carsPosLockLoc)
     while True:
         #gameDisplay.blit(redCar.image)
         #gameDisplay.blit(redCar.image, [redCar.posX, redCar.posY])
@@ -37,16 +41,25 @@ def carProcess(fr,to, carsLoc, carsLockLoc):
 
 def Main():
     #pygame.display.update()
-    print("map length: ", len(Map))
+    print("map length: ", len(map.map))
     #redCar = car(100,100,[Map[0], Map[2], Map[3], Map[1]])
     children = []
-    for i in range(10):
+    for i in range(2):
         pid = os.fork()
         if pid == 0:
-            if i != 10:
-                carProcess(i,10, cars, carsLock)    #100,100,[Map[0], Map[2], Map[3], Map[1]])
-            else:
-                carProcess(10,5, cars, carsLock)
+            f = random.randrange(len(map.map))
+            print("f: ", f, " len(map.map): ", len(map.map))
+            t = f
+            while f == t:
+                t = random.randrange(len(map.map))
+            if (i == 0):
+                f = 7
+                t = 9
+            if (i == 1):
+                f = 9
+                t = 7
+            carProcess(f,t, cars, carsLock, carsPos, carsPosLock)    #100,100,[Map[0], Map[2], Map[3], Map[1]])
+            
             return
         children.append(pid)
     # pid = os.fork()

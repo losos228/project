@@ -1,5 +1,5 @@
-#from turtle import position
-#from asyncio.windows_events import NULL
+
+from random import randrange
 import pygame
 import os
 import multiprocessing as mp
@@ -25,44 +25,70 @@ pygame.init()
 FONT = pygame.font.SysFont('arial', 40)
 
 class intersection(pygame.sprite.Sprite):
-  def addOutgoing(self, car, goingTo):
-    print("adding: ", car)
-    self.outgoingLock.acquire()
+  def addOutgoing(self, car, goingTo, acquireLock = True):
+    # print("adding: ", car)
+    if acquireLock:
+      self.outgoingLock.acquire()
     self.outgoing.append((car, goingTo))
-    self.outgoingLock.release()
-    print("to ",self.name)
-    print(self.name, self.outgoing)
+    if acquireLock:
+      self.outgoingLock.release()
+    # print("to ",self.name)
+    # print(self.name, self.outgoing)
   def removeFromOutgoing(self, car, goingTo):
-    print("removing ", car)
-    print("goingTo ", goingTo)
+    # print("removing ", car)
+    # print("goingTo ", goingTo)
     self.outgoingLock.acquire()
     self.outgoing.remove((car, goingTo))
     self.outgoingLock.release()
-    print("removing finished ", car)
+    # print("removing finished ", car)
 
-  def getLastOnRoadTo(self, dest):
-    self.outgoingLock.acquire()
-    for i in range(len(self.outgoing)).reverse:
-      if(self.outgoing[i][1] == dest):
-        self.outgoingLock.release()
-        return i
-    self.outgoingLock.release()
+  def getLastOnRoadTo(self, dest, ignore = -1, acquireLock = True):
+    if acquireLock:
+      self.outgoingLock.acquire()
+    if len(self.outgoing) > 0:
+      for i in range(len(self.outgoing)-1, -1, -1):
+        # print(ignore, " checking: ", i)
+        if(self.outgoing[i][1] == dest and self.outgoing[i][0] != ignore):
+          if acquireLock:
+            self.outgoingLock.release()
+          print(" found: ", self.outgoing[i][0])
+          return self.outgoing[i][0]
+      # if(self.outgoing[0][1] == dest and self.outgoing[0][0] != ignore):
+      #   if acquireLock:
+      #     self.outgoingLock.release()
+      #   print("found in first place: ", self.outgoing[0][0])
+      #   return self.outgoing[0][0]
+    if acquireLock:
+      self.outgoingLock.release()
+    print("didn't find anything, going to ", dest, " Outgoing: ", self.outgoing, " Ignore: ", ignore)
     return None
-  def getFirstOnRoadTo(self, dest):
-    self.outgoingLock.acquire()
+
+  def getFirstOnRoadTo(self, dest, acquireLock = True):
+    if acquireLock:
+      self.outgoingLock.acquire()
     for i in range(len(self.outgoing)):
       if(self.outgoing[i][1] == dest):
-        self.outgoingLock.release()
+        if acquireLock:
+          self.outgoingLock.release()
         return i
-    self.outgoingLock.release()
+    if acquireLock:
+      self.outgoingLock.release()
     return None
+
   def __init__(self, name, position, neighbors, weights):
 
     self.name = name
     self.position = position
     self.neighbors = neighbors
-    self.weights = weights
+    self.neighborsAngles = [len(self.neighbors)]
     #self.font = FONT
+<<<<<<< HEAD
+=======
+    self.color = [randrange(255), randrange(255), randrange(255)]
+    while self.color == [0,0,0]:
+      self.color = [randrange(255), randrange(255), randrange(255)]
+
+>>>>>>> origin
     self.outgoingManager = mp.Manager()
     self.outgoingLock = self.outgoingManager.Lock()
     self.outgoing = self.outgoingManager.list() #car, going to
@@ -165,16 +191,16 @@ map = [
   intersection("v2",  (50, 250),  [1, 3, 7],   [1, 3]),
   intersection("v3",  (50, 350),  [2],         [1]),
   intersection("v4",  (150, 50),  [0, 5],      [1, 1]),
-  intersection("v5",  (250, 50),  [4, 9],      [1, 1]),
+  intersection("v5",  (250, 50),  [4],      [ 1]),
   intersection("v6",  (150, 150), [1, 4],      [1, 1]),
-  intersection("v7",  (150, 250), [2, 6, 8],   [1, 1, 1]),
-  intersection("v8",  (150, 350), [3],         [1, 1]),
-  intersection("v9",  (350, 50),  [5,14],      [1, 1]),
+  intersection("v7",  (150, 250), [2, 6, 8, 15, 9],   [1, 1, 1, 1, 1]),
+  intersection("v8",  (150, 350), [3, 13, 15],         [1, 1, 1]),
+  intersection("v9",  (350, 50),  [5,14,7],      [1, 1, 1]),
 
   intersection("v10",  (450, 50),  [9, 11],    [1, 1]),
   intersection("v11",  (450, 150), [10],       [1, 1]),
   intersection("v12",  (450, 250), [11, 13],   [1, 1]),
-  intersection("v13",  (450, 350), [12],       [1]),
+  intersection("v13",  (450, 350), [12, 8],    [1, 1]),
   intersection("v14",  (350, 150), [9, 15],    [1, 1]),
   intersection("v15",  (350, 250), [14,  12],  [1, 1]),
 ]
@@ -194,6 +220,7 @@ def draw_map(map_):
     # Draw Nodes
     # pygame.draw.circle(WIN, DEEPBLUE,
     #                   (x, y), RADIUS)
+
 
 
     for neighbor in map_[i]["neighbors"]:
@@ -222,7 +249,7 @@ def draw_map(map_):
                                        30)
       """
         #print(f"[{i}] and [{neighbor}] SINGLE EDGE")
-
+    WIN.blit(FONT.render(map_[i].name, True, (map_[i].color)), (x+10, y+10))
     # Update screen
     pygame.display.update()
     pygame.image.save(WIN, "images/background.jpg")
@@ -259,6 +286,8 @@ def main():
 
 
   #pygame.quit()
+
+
 
 
 

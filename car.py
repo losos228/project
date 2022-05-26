@@ -4,6 +4,7 @@ import pygame
 # import time
 import numpy as np
 # import sys
+from math import sqrt
 import os#,signal
 import map
 import random
@@ -11,11 +12,16 @@ import multiprocessing as mp
 
 
 class car(pygame.sprite.Sprite):
-    def __init__(self, fr, to, cars, carsLock):
-        with carsLock:
-            self.id = len(cars)
-            print("\nid: ", self.id)
-            cars.append(self)
+    def __init__(self, fr, to, cars, carsLock, carsPos, carsPosLock):
+        carsLock.acquire()
+        self.id = len(cars)
+            # print("\nid: ", self.id)
+        cars.append(self)
+        carsLock.release()
+        carsPosLock.acquire()
+        carsPos.insert(self.id, [0,0,0])
+            # print("carsPos at start: ", carsPos)
+        carsPosLock.release()
             
        # print("cars len: ", len(cars))
    #     print("cars: ", cars)
@@ -33,24 +39,51 @@ class car(pygame.sprite.Sprite):
         
         self.calculateRoute(fr, to)
         
-        #mapLock = mapLock
-        #self.Map = Map
+        # self.mapLock = mapLock
+        # self.map = Map
+        self.carsPosLock = carsPosLock
+        self.carsPos = carsPos
+
+        self.length = 30
+        self.height = 15 
+
         self.image = pygame.image.load("images/redCar.png")
         self.posX = map.map[self.road[0]]["position"][0]
         self.posY = map.map[self.road[0]]["position"][1]
        # self.road = road
         self.roadStep = 1
         self.nextStep = map.map[self.road[1]]
-        self.dirX = (self.nextStep["position"][0]-self.posX)/distance((self.posX, self.posY), self.nextStep["position"])
-        self.dirY = (self.nextStep["position"][1]-self.posY)/distance((self.posX, self.posY), self.nextStep["position"])
+        self.changeDirection()
         self.currRoadLen = distance((self.posX, self.posY), self.nextStep["position"])
         self.addedToOutgoing = 0
+        self.prev = None
+        # self.color = (0,0,0)
         print("init finished")
 
         #super().__init__(*groups)
-    def render(self, screen):
-        screen.blit(self.image, (self.posX, self.posY))
-    
+    def render(self):
+        gameDisplay.blit(self.surf, [self.posX-(self.height*0.5*self.dirYsqrt)-0.4*self.height, self.posY+(self.height*0.5*self.dirXsqrt)-0.4*self.height])
+        #gameDisplay.blit(image, [self.posX-(7*self.dirY), self.posY+(5*self.dirX)])
+
+    def changeDirection(self):
+        self.dirX = (self.nextStep["position"][0]-self.posX)/distance((self.posX, self.posY), self.nextStep["position"])
+        self.dirY = (self.nextStep["position"][1]-self.posY)/distance((self.posX, self.posY), self.nextStep["position"])
+        if self.dirX < 0:
+            self.dirXsqrt = sqrt(-self.dirX)
+            self.dirXsqrt = -self.dirXsqrt
+        else:
+            self.dirXsqrt = sqrt(self.dirX)
+        if self.dirY < 0:
+            self.dirYsqrt = sqrt(-self.dirY)
+            self.dirYsqrt = -self.dirYsqrt
+        else:
+            self.dirYsqrt = sqrt(self.dirY)
+        angle = np.angle(self.dirX-self.dirY*1.0j, deg=True)
+        self.surf = pygame.Surface((self.length, self.height))
+        self.surf.set_colorkey((0,0,0))
+        self.surf.fill(self.color)
+        self.surf = pygame.transform.rotate(self.surf, angle)
+
     def calculateRoute(self, fr, to):
         self.destination = to
         #dijkstra's algorithm
@@ -59,17 +92,19 @@ class car(pygame.sprite.Sprite):
         table = [[0 for x in range(4)] for y in range(len(map.map))] #vertex, cost, previous, visited
 
         for i in range(len(map.map)):
+            # table.append([i,99999999999,-1,0])
             table[i][0] = i
             table[i][1] = 99999999999#np.Infinity
             table[i][2] = -1
             table[i][3] = 0
+        print("fr: ",fr, " table len: ", len(table))
         table[fr][1] = 0
         curr = fr
         next = fr
         routeFound = 0
-        print("route for: ",os.getpid())
-        print("fr: ",fr)
-        print("to: ", to)
+        # print("route for: ",os.getpid())
+        # print("fr: ",fr)
+        # print("to: ", to)
         # print("first table:")
         # print(table)
         while not routeFound:
@@ -105,10 +140,10 @@ class car(pygame.sprite.Sprite):
         #self.road = self.road.reverse()
         self.roadStep = 1
         self.nextStep = map.map[self.road[1]]
-        print("calculate route finished")
-        print(self.road)
+        # print("calculate route finished")
+        # print(self.road)
+        self.color = map.map[to].color
 
-        
 
     def move(self):
         if(self.roadStep > len(self.road)-1):
@@ -132,15 +167,35 @@ class car(pygame.sprite.Sprite):
                        
             
             self.currRoadLen = distance((self.posX, self.posY), self.nextStep["position"])
-            print("distance ", distance((self.posX, self.posY), self.nextStep["position"]))
-            self.dirX = (self.nextStep["position"][0]-self.posX)/distance((self.posX, self.posY), self.nextStep["position"])
-            self.dirY = (self.nextStep["position"][1]-self.posY)/distance((self.posX, self.posY), self.nextStep["position"])
+            # print("distance ", distance((self.posX, self.posY), self.nextStep["position"]))
+            self.changeDirection()
             
         else:
-
             if not self.addedToOutgoing:
-                map.map[self.road[self.roadStep-1]].addOutgoing(self.id, self.road[self.roadStep])
+                map.map[self.road[self.roadStep-1]].outgoingLock.acquire()
+                map.map[self.road[self.roadStep-1]].addOutgoing(self.id, self.road[self.roadStep], False)
+                self.prev = map.map[self.road[self.roadStep-1]].getLastOnRoadTo(self.road[self.roadStep], self.id, False)
+                map.map[self.road[self.roadStep-1]].outgoingLock.release()
+                if self.prev != None:
+                    print("id: ", self.id, " prev: ", self.prev)
+                # print("road: ", self.road, " road step: ", self.roadStep, " self.road[self.roadStep] ", self.road[self.roadStep])
                 self.addedToOutgoing = 1
+
+            if self.prev != None:
+                self.carsPosLock.acquire()
+                if distance([self.carsPos[self.prev][0],self.carsPos[self.prev][1]], [self.posX, self.posY, self.road[self.roadStep]])  < self.length*1.2:
+                    if self.road[self.roadStep] != self.carsPos[self.prev][2]:
+                        self.prev = None
+                    else:
+                        self.carsPosLock.release()
+                        print(self.id, " breaking")
+                        self.render()
+                        return
+                # else:
+                #     print("")
+                #     print(self.id, " distance to ", self.prev, " ", distance([self.carsPos[self.prev][0],self.carsPos[self.prev][1]], [self.posX, self.posY]), " position previous: ", self.carsPos[self.prev])
+                #     print("")   
+                self.carsPosLock.release()
             #moved = 0
             # print("posX: ",self.posX)
             # print("posY: ",self.posY)
@@ -153,36 +208,43 @@ class car(pygame.sprite.Sprite):
                 
                 # print ("a")
                 self.posX = self.posX+self.dirX
+                self.carsPosLock.acquire()
+                self.carsPos[self.id] = [self.posX, self.posY, self.road[self.roadStep]]
+                    # if(self.id == 1):
+                    #     print("id: ",self.id )
+                    #     print("car positions(after x): ", self.carsPos)
+                    #     print("my position: ", [self.posX, self.posY])
+                self.carsPosLock.release()
                 #moved = 1
             if(not diffWithin(self.posY, self.nextStep["position"][1], self.currRoadLen*0.05)):
                 # print ("b")
                 self.posY = self.posY+self.dirY
-                #moved = 1
+                self.carsPosLock.acquire()
+                self.carsPos[self.id] = [self.posX, self.posY, self.road[self.roadStep]]
+                    # print("id: ",self.id )
+                    # print("car positions(after y): ", self.carsPos)
+                self.carsPosLock.release()
+                moved = 1
             if(diffWithin(self.posY, self.nextStep["position"][1], self.currRoadLen*0.05) and diffWithin(self.posX, self.nextStep["position"][0], self.currRoadLen*0.05)):
                 # print("c")
-                print("aaa")
 
                 if self.addedToOutgoing:
                     map.map[self.road[self.roadStep-1]].removeFromOutgoing(self.id, self.road[self.roadStep])
                     self.addedToOutgoing = 0
-                print("bbbb")
                 self.posX = self.nextStep["position"][0]
                 self.posY = self.nextStep["position"][1]
+                self.carsPosLock.acquire()
+                self.carsPos[self.id] = [self.dirX, self.dirY]
+                self.carsPosLock.release()
                 self.roadStep = self.roadStep+1
                     #         pass
                 if(self.roadStep <= len(self.road)-1):
                     
-                    # while True:
-                    #     try:
-                    #         with mapLock:
-                    #             self.nextStep = Map[self.road[self.roadStep]]
-                    #             mapLock.release()
-                    #             break
-                    #     except:
-                    #         pass
+                    
+
                     self.nextStep = map.map[self.road[self.roadStep]]
                     # print("d")
-                    self.dirX = (self.nextStep["position"][0]-self.posX)/distance((self.posX, self.posY), self.nextStep["position"])
-                    self.dirY = (self.nextStep["position"][1]-self.posY)/distance((self.posX, self.posY), self.nextStep["position"])
+                    self.changeDirection()
                     self.currRoadLen = distance((self.posX, self.posY), self.nextStep["position"])
-            gameDisplay.blit(self.image, [self.posX, self.posY])
+            self.render()
+            
