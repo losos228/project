@@ -23,41 +23,26 @@ class car(pygame.sprite.Sprite):
             # print("carsPos at start: ", carsPos)
         carsPosLock.release()
             
-       # print("cars len: ", len(cars))
-   #     print("cars: ", cars)
-        #with mapLock: 
-        # while True:
-        #     try:
-        #         print("a")
-        #         mapLock.acquire()
-        #         self.calculateRoute(fr, to, Map, mapLock)
-        #         mapLock.release()
-        #         print("b")
-        #         break
-        #     except:
-        #         pass
         
         self.calculateRoute(fr, to)
         
-        # self.mapLock = mapLock
-        # self.map = Map
         self.carsPosLock = carsPosLock
         self.carsPos = carsPos
 
         self.length = 30
         self.height = 15 
 
-        self.image = pygame.image.load("images/redCar.png")
         self.posX = map.map[self.road[0]]["position"][0]
         self.posY = map.map[self.road[0]]["position"][1]
-       # self.road = road
+
         self.roadStep = 1
         self.nextStep = map.map[self.road[1]]
         self.changeDirection()
+        
         self.currRoadLen = distance((self.posX, self.posY), self.nextStep["position"])
         self.addedToOutgoing = 0
         self.prev = None
-        # self.color = (0,0,0)
+
 
 
         self.stoppedByRightBusy = False
@@ -66,12 +51,37 @@ class car(pygame.sprite.Sprite):
         self.count = 5
         print("init finished")
 
-        #super().__init__(*groups)
+        #renders the car with an offset as to be placed in the apropriate place
     def render(self):
+        """
+        ----------------------------------------------------
+        Function to:
+        Render the car on the screen
+        ----------------------------------------------------
+        Parameters:
+        None
+        ----------------------------------------------------
+        Returns:
+        None
+        ----------------------------------------------------
+        """
         gameDisplay.blit(self.surf, [self.posX-(self.height*0.5*self.dirY)-0.4*self.height, self.posY+(self.height*0.5*self.dirX)-0.4*self.height])
-        #gameDisplay.blit(image, [self.posX-(7*self.dirY), self.posY+(5*self.dirX)])
-
+        
+        #
     def changeDirection(self):
+        """
+        ----------------------------------------------------
+        Function to:
+        Change the direction of movement and rotate the car 
+            surface in the apropriate direction 
+        ----------------------------------------------------
+        Parameters:
+        None
+        ----------------------------------------------------
+        Returns:
+        None
+        ----------------------------------------------------
+        """
         self.posX = map.map[self.road[self.roadStep-1]]["position"][0]
         self.posY = map.map[self.road[self.roadStep-1]]["position"][1]
 
@@ -87,6 +97,20 @@ class car(pygame.sprite.Sprite):
         self.surf = pygame.transform.rotate(self.surf, angle)
 
     def calculateRoute(self, fr, to):
+        """
+        ----------------------------------------------------
+        Function to:
+        Caclulate the best route from point A (fr) to 
+        point B (to). Uses Dikstra's algorithm.
+        ----------------------------------------------------
+        Parameters:
+        fr(int): the intersection from which to start from
+        to(int): the intersection on which to end at
+        ----------------------------------------------------
+        Returns:
+        None, the route is saved in self.road
+        ----------------------------------------------------
+        """
         self.destination = to
         #dijkstra's algorithm
         #Map[fr]
@@ -147,6 +171,20 @@ class car(pygame.sprite.Sprite):
         self.color = map.map[to].color
 
     def checkRightFree(self, roadStep): #returns True if the carr should stop, false if it should keep going
+        """
+        ----------------------------------------------------
+        Function to:
+        Check whether to stop the car from going on the 
+        intersection based on the right hand free rule.
+        ----------------------------------------------------
+        Parameters:
+        roadStep(int): the roadStep which to check.
+        ----------------------------------------------------
+        Returns:
+        bool: if True the car can't enter the intersection
+        if False the car can enter the intersection.
+        ----------------------------------------------------
+        """
         distanceVar = distance(map.map[self.road[roadStep-1]]["position"],map.map[self.road[roadStep]]["position"])
         Xdif = (map.map[self.road[roadStep-1]]["position"][0]-map.map[self.road[roadStep]]["position"][0])/distanceVar
         Ydif = (map.map[self.road[roadStep-1]]["position"][1]-map.map[self.road[roadStep]]["position"][1])/distanceVar
@@ -212,6 +250,20 @@ class car(pygame.sprite.Sprite):
         return False
 
     def checkLeaveSpace(self, roadStep):
+        """
+        ----------------------------------------------------
+        Function to:
+        Check wether there is suitable space to leave the 
+        intersection
+        ----------------------------------------------------
+        Parameters:
+        roadStep(int): the roadStep which to check.
+        ----------------------------------------------------
+        Returns:
+        bool: if True the car can't enter the intersection
+        if False the car can enter the intersection.
+        ----------------------------------------------------
+        """
         lastOn = map.map[self.road[roadStep]].getLastOnRoadTo(self.road[roadStep+1])
         self.carsPosLock.acquire()
         if lastOn != None and distance(self.carsPos[lastOn], map.map[self.road[roadStep]]["position"]) < self.length *2:
@@ -222,6 +274,21 @@ class car(pygame.sprite.Sprite):
         return False
 
     def move(self):
+        """
+        ----------------------------------------------------
+        Function to:
+        the main loop function, that's the only function 
+        called from outside. Coordinates the movement of 
+        the car, using most if not all othe functions of the
+        class
+        ----------------------------------------------------
+        Parameters:
+        none
+        ----------------------------------------------------
+        Returns:
+        none
+        ----------------------------------------------------
+        """
         if not self.stoppedByRightBusy and not self.stoppedByNoLeaveSpace:
             if(self.roadStep > len(self.road)-1):
                 # print("a")
@@ -262,7 +329,7 @@ class car(pygame.sprite.Sprite):
                 if self.prev != None:
                     self.carsPosLock.acquire()
                     if distance(self.carsPos[self.prev], [self.posX, self.posY])  < self.length*1.2:
-                        # if self.road[self.roadStep] != self.carsPos[self.prev][2]:
+                        # if self.road[self.roadStep] != self.carsPos[self.prev][2] and :
                         #     self.prev = None
                         # else:
                             self.carsPosLock.release()

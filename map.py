@@ -28,34 +28,19 @@ class intersection(pygame.sprite.Sprite):
   """
   Class implementing intersection of roads
   """
-  def __init__(self, name, position, neighbors, weights):
-
-    self.name = name
-    self.position = position
-    self.neighbors = neighbors
-    self.neighborsAngles = [len(self.neighbors)]
-    #self.font = FONT
-    self.color = [randrange(255), randrange(255), randrange(255)]
-    while self.color == [0,0,0]:
-      self.color = [randrange(255), randrange(255), randrange(255)]
-    """
-    self.outgoingManager = mp.Manager()
-    self.outgoingLock = self.outgoingManager.Lock()
-    self.outgoing = self.outgoingManager.list() #car, going to
-    """
-  def __getitem__ (self, key):
-    return getattr(self, key)
-
   def addOutgoing(self, car, goingTo, acquireLock = True):
     """
     ----------------------------------------------------
-    Function to
+    Function to:
+    Add a car to the outgoing table
     ----------------------------------------------------
     Parameters:
-
+    car(int): the position of the car in the cars table
+    goingTo(int): the intersection on road to which the car is
+    acquireLock(bool, optional): whether or not to acquire the lock to the outgoing table
     ----------------------------------------------------
     Returns:
-
+    Doesn't return anything
     ----------------------------------------------------
     """
     # print("adding: ", car)
@@ -67,16 +52,21 @@ class intersection(pygame.sprite.Sprite):
     # print("to ",self.name)
     # print(self.name, self.outgoing)
 
-  def removeFromOutgoing(self, car, goingTo):
+  def removeFromOutgoing(self, car, goingTo, acquireLock = True):
     """
     ----------------------------------------------------
-    Function to
+    Function to:
+    Remove a car from the outgoing table
     ----------------------------------------------------
     Parameters:
-
+    car(int): the position of the car in the cars table
+    goingTo(int): the position in the map of the intersection on
+      road to which the car is
+    acquireLock(bool, optional): whether or not to acquire the
+      lock to the outgoing table
     ----------------------------------------------------
     Returns:
-
+    Doesn't return anything
     ----------------------------------------------------
     """
     # print("removing ", car)
@@ -91,13 +81,20 @@ class intersection(pygame.sprite.Sprite):
   def getLastOnRoadTo(self, dest, ignore = -1, acquireLock = True):
     """
     ----------------------------------------------------
-    Function to
+    Function to:
+    Get the last car on road to a specified intersection
     ----------------------------------------------------
     Parameters:
-
+    dest(int): the position in the map of the intersection on
+      road to which the desired car is
+    ignore(int, optional): a car to ignore
+    acquireLock(bool, optional): whether or not to acquire the
+      lock to the outgoing table
     ----------------------------------------------------
     Returns:
-
+    (int) the position in the cars table of the car that's the
+      last on the road from the intersaction to dest
+    None if there is no suitable car on the road
     ----------------------------------------------------
     """
     if acquireLock:
@@ -121,22 +118,29 @@ class intersection(pygame.sprite.Sprite):
     print("didn't find anything, going to ", dest, " Outgoing: ", self.outgoing, " Ignore: ", ignore)
     return None
 
-  def getFirstOnRoadTo(self, dest, acquireLock = True):
+  def getFirstOnRoadTo(self, dest, ignore = -1,acquireLock = True):
     """
     ----------------------------------------------------
-    Function to
+    Function to:
+    Get the first car on road to a specified intersection
     ----------------------------------------------------
     Parameters:
-
+    dest(int): the position in the map of the intersection on
+      road to which the desired car is
+    ignore(int, optional): a car to ignore
+    acquireLock(bool, optional): whether or not to acquire the
+      lock to the outgoing table
     ----------------------------------------------------
     Returns:
-
+    (int) the position in the cars table of the car that's the
+      first on the road from the intersaction to dest
+    None if there is no suitable car on the road
     ----------------------------------------------------
     """
     if acquireLock:
       self.outgoingLock.acquire()
     for i in range(len(self.outgoing)):
-      if(self.outgoing[i][1] == dest):
+      if(self.outgoing[i][1] == dest and self.outgoing[i][0] != ignore):
         found = self.outgoing[i][0]
         if acquireLock:
           self.outgoingLock.release()
@@ -145,17 +149,18 @@ class intersection(pygame.sprite.Sprite):
       self.outgoingLock.release()
     return None
 
+
+
+  def __init__(self, name, position, neighbors):
     self.name = name
     self.position = position
     self.neighbors = neighbors
     self.neighborsAngles = [len(self.neighbors)]
     self.neighborsFrom = []
     #self.font = FONT
-
     self.color = [randrange(255), randrange(255), randrange(255)]
     while self.color == [0,0,0]:
       self.color = [randrange(255), randrange(255), randrange(255)]
-
 
     self.outgoingManager = mp.Manager()
     self.outgoingLock = self.outgoingManager.Lock()
@@ -163,8 +168,6 @@ class intersection(pygame.sprite.Sprite):
   def __getitem__ (self, key):
     return getattr(self, key)
   #def add_text_to_map(self):
-
-
 
 
 def map_helper(__map, __name, __position, __neighbors, __weights, __node_name):
@@ -378,6 +381,14 @@ def draw_map(map_):
         pygame.draw.line(WIN, DIMGRAY, map_[i]["position"],
                                        map_[neighbor]["position"],
                                        30)
+<<<<<<< HEAD
+=======
+      """
+        #print(f"[{i}] and [{neighbor}] SINGLE EDGE")
+    WIN.blit(FONT.render(map_[i].name, True, (map_[i].color)), (x+10, y+10))
+    # Update screen
+    pygame.display.update()
+>>>>>>> 4127e6ce8f7001c3b326603114ac66cd4f683269
 
         #print(f"[{i}] and [{neighbor}] SINGLE EDGE")
     WIN.blit(FONT.render(map_[i].name, True, (map_[i].color)), (x+10, y+10))
