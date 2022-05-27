@@ -38,11 +38,11 @@ class intersection(pygame.sprite.Sprite):
     self.color = [randrange(255), randrange(255), randrange(255)]
     while self.color == [0,0,0]:
       self.color = [randrange(255), randrange(255), randrange(255)]
-
+    """
     self.outgoingManager = mp.Manager()
     self.outgoingLock = self.outgoingManager.Lock()
     self.outgoing = self.outgoingManager.list() #car, going to
-
+    """
   def __getitem__ (self, key):
     return getattr(self, key)
 
@@ -66,7 +66,6 @@ class intersection(pygame.sprite.Sprite):
       self.outgoingLock.release()
     # print("to ",self.name)
     # print(self.name, self.outgoing)
-<<<<<<< HEAD
 
   def removeFromOutgoing(self, car, goingTo):
     """
@@ -80,9 +79,6 @@ class intersection(pygame.sprite.Sprite):
 
     ----------------------------------------------------
     """
-=======
-  def removeFromOutgoing(self, car, goingTo, acquireLock = True):
->>>>>>> 5d3713bcad8df0eea85f5257123c00d9c47d7e8d
     # print("removing ", car)
     # print("goingTo ", goingTo)
     if acquireLock:
@@ -121,13 +117,8 @@ class intersection(pygame.sprite.Sprite):
       #   print("found in first place: ", self.outgoing[0][0])
       #   return self.outgoing[0][0]
     if acquireLock:
-<<<<<<< HEAD
       self.outgoingLock.release()
     print("didn't find anything, going to ", dest, " Outgoing: ", self.outgoing, " Ignore: ", ignore)
-=======
-      self.outgoingLock.release()  
-    # print("didn't find anything, going to ", dest, " Outgoing: ", self.outgoing, " Ignore: ", ignore)
->>>>>>> 524dcc7 (added the right hand rule and checking wether there is space after the intersection to leave)
     return None
 
   def getFirstOnRoadTo(self, dest, acquireLock = True):
@@ -154,29 +145,26 @@ class intersection(pygame.sprite.Sprite):
       self.outgoingLock.release()
     return None
 
-
-<<<<<<< HEAD
-=======
     self.name = name
     self.position = position
     self.neighbors = neighbors
     self.neighborsAngles = [len(self.neighbors)]
     self.neighborsFrom = []
     #self.font = FONT
-<<<<<<< HEAD
-=======
+
     self.color = [randrange(255), randrange(255), randrange(255)]
     while self.color == [0,0,0]:
       self.color = [randrange(255), randrange(255), randrange(255)]
 
->>>>>>> origin
+
     self.outgoingManager = mp.Manager()
     self.outgoingLock = self.outgoingManager.Lock()
     self.outgoing = self.outgoingManager.list() #car, going to
   def __getitem__ (self, key):
     return getattr(self, key)
   #def add_text_to_map(self):
->>>>>>> 5d3713bcad8df0eea85f5257123c00d9c47d7e8d
+
+
 
 
 def map_helper(__map, __name, __position, __neighbors, __weights, __node_name):
@@ -261,17 +249,30 @@ def generate_map(noi, dbi, offsetX = 0, offsetY = 0, is_fully_connected = True):
         __map, __node_name = map_helper(__map, __name, __position, __neighbors, __weights, __node_name)
 
       # Other borders
-      #elif(idx == 0 and 1 <= idy <= noi-2):
-      #  __neighbors.extend([idy-1, idy+1, idy+noi])
-      #  __map, __node_name = map_helper(__map, __name, __position, __neighbors, __weights, __node_name)
+      elif(idx == 0 and 1 <= idy <= noi-2):
+        __neighbors.extend([idy-1, idy+1, idy+noi])
+        __map, __node_name = map_helper(__map, __name, __position, __neighbors, __weights, __node_name)
 
-      #elif(1 <= idx <= noi-2 and idy == 0):
+      elif(1 <= idx <= noi-2 and idy == 0):
       #  print(f"X {idx}, Y {idy}")
-        #__neighbors.extend([])
-        #__map, __node_name = map_helper(__map, __name, __position, __neighbors, __weights, __node_name)
-      #elif(1 <= idx <= noi-2 and idy == noi-2):
-      #elif(idx == noi-2 and 1 <= idy <= noi-2):
+        __neighbors.extend([__node_name-noi, __node_name+1, __node_name+noi])
+        __map, __node_name = map_helper(__map, __name, __position, __neighbors, __weights, __node_name)
 
+      elif(idx == noi-1 and 1 <= idy <= noi-2):
+        print("__node_name", __node_name)
+        __neighbors.extend([__node_name-noi, __node_name-1, __node_name+1])
+        __map, __node_name = map_helper(__map, __name, __position, __neighbors, __weights, __node_name)
+
+      elif(1 <= idx <= noi-2 and idy == noi-1):
+        __neighbors.extend([__node_name-noi, __node_name-1, __node_name+noi])
+        __map, __node_name = map_helper(__map, __name, __position, __neighbors, __weights, __node_name)
+
+      # Everything else - center intersections with 4 edges
+      else:
+        __neighbors.extend([__node_name-noi, __node_name-1, __node_name+1, __node_name+noi])
+        __map, __node_name = map_helper(__map, __name, __position, __neighbors, __weights, __node_name)
+
+      """
       else:
       #if(idx*noi):
         print(f"current position {__current_pos}")
@@ -294,12 +295,13 @@ def generate_map(noi, dbi, offsetX = 0, offsetY = 0, is_fully_connected = True):
                               __current_pos+noi])
           #print(f"neighbors are {__neighbors}")
           __map, __node_name = map_helper(__map, __name, __position, __neighbors, __weights, __node_name)
-
+        """
   return __map
 # x->
 #y# "v00", "v10",
 #|# "v01", "v11"
 #v
+"""
 map = [
   #            name   position    neighbors    weights
   intersection("v0",  (50, 50),   [1, 4],      [2, 3]),
@@ -320,6 +322,7 @@ map = [
   intersection("v14",  (350, 150), [9, 15],    [1, 1]),
   intersection("v15",  (350, 250), [14,  12],  [1, 1]),
 ]
+"""
 
 def draw_map(map_):
   """
@@ -360,71 +363,26 @@ def draw_map(map_):
       __visited.append(__edge)
       #print(f"visited = {__visited}")
       if(__visited.count(__edge) > 1):
-        print("here")
+        """print("here")
         pygame.draw.line(WIN, DIMGRAY, map_[i]["position"],
                                        map_[neighbor]["position"],
                                        30)
+        """
         pygame.draw.line(WIN, WHITE, map_[i]["position"],
                                      map_[neighbor]["position"],
                                      2)
         #print(f"[{i}] and [{neighbor}] DOUBLE EDGE")
-      """
+
       else:
         print("here2")
         pygame.draw.line(WIN, DIMGRAY, map_[i]["position"],
                                        map_[neighbor]["position"],
                                        30)
-      """
+
         #print(f"[{i}] and [{neighbor}] SINGLE EDGE")
     WIN.blit(FONT.render(map_[i].name, True, (map_[i].color)), (x+10, y+10))
     # Update screen
     pygame.display.update()
-<<<<<<< HEAD
-=======
-
-
-#draw_window not only draws the window, but also adds intersections to neiborsFrom
-
-def draw_window():
-  WIN.fill(GREEN)
-  pygame.display.flip()
-  visited = []
-  for i in range(len(map)):
-    #font = pygame.font.sysFont(map["name"], 30)
-    # Get node position and draw
-    x, y = map[i]["position"]
-    # Draw Nodes
-    # pygame.draw.circle(WIN, DEEPBLUE,
-    #                   (x, y), RADIUS)
-
-
-    for neighbor in map[i]["neighbors"]:
-      edge = []
-      edge.append(i)
-      edge.append(neighbor)
-      edge = sorted(edge)
-      visited.append(edge)
-
-      map[neighbor].neighborsFrom.append(i)
-
-      if(visited.count(edge) > 1):
-        pygame.draw.line(WIN, DIMGRAY, map[i]["position"],
-                                    map[neighbor]["position"],
-                                    40 )
-        pygame.draw.line(WIN, WHITE, map[i]["position"],
-                                    map[neighbor]["position"],
-                                    2 )
-        #print(f"[{i}] and [{neighbor}] DOUBLE EDGE")
-      else:
-        pygame.draw.line(WIN, DIMGRAY, map[i]["position"],
-                                    map[neighbor]["position"],
-                                    30 )
-        #print(f"[{i}] and [{neighbor}] SINGLE EDGE")
-
-    WIN.blit(FONT.render(map[i].name, True, (map[i].color)), (x+10, y+10))
-    # Update screen
-    pygame.display.update()
->>>>>>> 524dcc7 (added the right hand rule and checking wether there is space after the intersection to leave)
     pygame.image.save(WIN, "images/background.jpg")
 
 def main():
@@ -438,8 +396,8 @@ def main():
 
   new_map = []
 
-  num_of_intersections = 4
-  distance_between_intersections = 250
+  num_of_intersections = 5
+  distance_between_intersections = 150
   center_of_map = distance_between_intersections*num_of_intersections/2
   offsetX = WIDTH/2 - center_of_map
   offsetY = HEIGHT/2 - center_of_map #+ 100
@@ -468,10 +426,3 @@ def main():
 if __name__ == '__main__':
 
   main()
-  # Draw all is
-
-
-
-    #print(node)
-  ##print(map[1]["position"][0])
-  #main()
