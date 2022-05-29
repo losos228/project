@@ -152,7 +152,12 @@ class intersection(pygame.sprite.Sprite):
       self.outgoingLock.release()
     return None
 
-
+  def getAllOnRoadTo(self,dest):
+    toReturn = []
+    for i in range(len(self.outgoing)):
+      if self.outgoing[1] == dest:
+        toReturn.append(self.outgoing[0])
+    return toReturn
 
   def __init__(self, name, position, neighbors, weights):
     self.name = name

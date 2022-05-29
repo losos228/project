@@ -31,8 +31,8 @@ Map = list() #mapManager.list(map.map)
 
 
 
-def carProcess(fr,to, carsLoc, carsLockLoc, carsPosLoc, carsPosLockLoc):
-    redCar = car(fr,to, carsLoc, carsLockLoc, carsPosLoc, carsPosLockLoc)
+def carProcess(fr,to, carsPosLoc, carsPosLockLoc):
+    redCar = car(fr,to, carsPosLoc, carsPosLockLoc, False)
     while True:
         #gameDisplay.blit(redCar.image)
         #gameDisplay.blit(redCar.image, [redCar.posX, redCar.posY])
@@ -59,7 +59,7 @@ def Main():
             if (i == 1):
                 f = 0
                 t = 2
-            carProcess(f,t, cars, carsLock, carsPos, carsPosLock)    #100,100,[Map[0], Map[2], Map[3], Map[1]])
+            carProcess(f,t, carsPos, carsPosLock)    #100,100,[Map[0], Map[2], Map[3], Map[1]])
             
             return
         children.append(pid)
@@ -68,6 +68,16 @@ def Main():
     #     carProcess(400,100,[Map[2], Map[3], Map[1], Map[0]])
     #     return
     # children.append(pid)
+    pid = os.fork()
+    if pid == 0:
+        f = random.randrange(len(map.map))
+        print("f: ", f, " len(map.map): ", len(map.map))
+        t = f
+        p = car(f,t, carsPos, carsPosLock, True)
+        while True:
+            p.move()
+            time.sleep(0.19)
+
     
     while True:
         for event in pygame.event.get():
