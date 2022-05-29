@@ -277,6 +277,9 @@ class car(pygame.sprite.Sprite):
         return False
 
     def checkMoveSpace(self):
+        if self.roadStep <= len(self.road) and self.prev!= None:
+            if self.road[self.roadStep] != self.carsPos[self.prev][2]:
+                self.prev = None
         if self.prev != None:
             self.carsPosLock.acquire()
             if distance([self.posX, self.posY], self.carsPos[self.prev])<self.length*1.2:
@@ -286,7 +289,7 @@ class car(pygame.sprite.Sprite):
             "self.prev: ", self.prev, " distance: ", distance([self.posX, self.posY], self.carsPos[self.prev]),
             " carLength*1.2: ", self.length*1.2)
             self.carsPosLock.release()
-        print("self.prev == None")
+        # print("self.prev == None")
         return False
 
     def move(self):
