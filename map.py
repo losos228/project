@@ -11,11 +11,11 @@ WIDTH, HEIGHT = 1920, 1080
 # Nodes radius
 RADIUS = 35
 # Distance between intersections
-WHITE = (255, 255, 255)
-DEEPBLUE = (0, 191, 255)
-GREEN = (0, 250, 80)
-DARK = (0, 0, 0)
-DIMGRAY = (105, 105, 105)
+WHITE = (255, 255, 255, 255)
+DEEPBLUE = (0, 191, 255, 255)
+GREEN = (0, 250, 80, 255)
+DARK = (0, 0, 0, 255)
+DIMGRAY = (105, 105, 105, 255)
 FLAGS = pygame.FULLSCREEN | pygame.SCALED
 #FLAGS,
 WIN = pygame.display.set_mode((WIDTH, HEIGHT), vsync=1)
@@ -93,7 +93,7 @@ class intersection(pygame.sprite.Sprite):
     ----------------------------------------------------
     Returns:
     (int) the position in the cars table of the car that's the
-      last on the road from the intersaction to dest
+      last on the road from the intersection to dest
     None if there is no suitable car on the road
     ----------------------------------------------------
     """
@@ -102,12 +102,15 @@ class intersection(pygame.sprite.Sprite):
     if len(self.outgoing) > 0:
       for i in range(len(self.outgoing)-1, -1, -1):
         # print(ignore, " checking: ", i)
-        if(self.outgoing[i][1] == dest and self.outgoing[i][0] != ignore):
-          found = self.outgoing[i][0]
-          if acquireLock:
-            self.outgoingLock.release()
-          print(" found: ", found)
-          return found
+        if(self.outgoing[i][1] == dest):
+          if self.outgoing[i][0] != ignore:
+            found = self.outgoing[i][0]
+            if acquireLock:
+              self.outgoingLock.release()
+            print(" found: ", found)
+            return found
+          # else:
+          #   return None
       # if(self.outgoing[0][1] == dest and self.outgoing[0][0] != ignore):
       #   if acquireLock:
       #     self.outgoingLock.release()
@@ -115,7 +118,7 @@ class intersection(pygame.sprite.Sprite):
       #   return self.outgoing[0][0]
     if acquireLock:
       self.outgoingLock.release()
-    print("didn't find anything, going to ", dest, " Outgoing: ", self.outgoing, " Ignore: ", ignore)
+    print("didn't find anything, going to ", dest, " Outgoing: ", self.outgoing, " ignore: ", ignore)
     return None
 
   def getFirstOnRoadTo(self, dest, ignore = -1,acquireLock = True):
@@ -151,10 +154,11 @@ class intersection(pygame.sprite.Sprite):
 
 
 
-  def __init__(self, name, position, neighbors):
+  def __init__(self, name, position, neighbors, weights):
     self.name = name
     self.position = position
     self.neighbors = neighbors
+    self.weights = weights
     self.neighborsAngles = [len(self.neighbors)]
     self.neighborsFrom = []
     #self.font = FONT
@@ -304,7 +308,7 @@ def generate_map(noi, dbi, offsetX = 0, offsetY = 0, is_fully_connected = True):
 #y# "v00", "v10",
 #|# "v01", "v11"
 #v
-"""
+
 map = [
   #            name   position    neighbors    weights
   intersection("v0",  (50, 50),   [1, 4],      [2, 3]),
@@ -325,7 +329,7 @@ map = [
   intersection("v14",  (350, 150), [9, 15],    [1, 1]),
   intersection("v15",  (350, 250), [14,  12],  [1, 1]),
 ]
-"""
+
 
 def draw_map(map_):
   """
@@ -381,14 +385,12 @@ def draw_map(map_):
         pygame.draw.line(WIN, DIMGRAY, map_[i]["position"],
                                        map_[neighbor]["position"],
                                        30)
-<<<<<<< HEAD
-=======
-      """
-        #print(f"[{i}] and [{neighbor}] SINGLE EDGE")
+
+    
+    #print(f"[{i}] and [{neighbor}] SINGLE EDGE")
     WIN.blit(FONT.render(map_[i].name, True, (map_[i].color)), (x+10, y+10))
     # Update screen
     pygame.display.update()
->>>>>>> 4127e6ce8f7001c3b326603114ac66cd4f683269
 
         #print(f"[{i}] and [{neighbor}] SINGLE EDGE")
     WIN.blit(FONT.render(map_[i].name, True, (map_[i].color)), (x+10, y+10))

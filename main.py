@@ -21,7 +21,8 @@ carsPosManager = mp.Manager()
 carsPosLock = carsPosManager.Lock()
 carsPos = carsPosManager.list() #posX, posY, goingTo
 
-map.draw_window()
+map.map = map.generate_map(3, 200, 40, 40)
+map.draw_map(map.map)
 background = pygame.image.load("images/background.jpg")
 
 # mapManager = mp.Manager()
@@ -44,7 +45,7 @@ def Main():
     print("map length: ", len(map.map))
     #redCar = car(100,100,[Map[0], Map[2], Map[3], Map[1]])
     children = []
-    for i in range(15):
+    for i in range(10):
         pid = os.fork()
         if pid == 0:
             f = random.randrange(len(map.map))
