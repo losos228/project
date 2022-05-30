@@ -13,9 +13,9 @@ from car import car
 pygame.init()
 
 
-carsManager = mp.Manager()
-carsLock = carsManager.Lock()
-cars = carsManager.list()
+# carsManager = mp.Manager()
+# carsLock = carsManager.Lock()
+# cars = carsManager.list()
 
 carsPosManager = mp.Manager()
 carsPosLock = carsPosManager.Lock()
@@ -31,8 +31,8 @@ Map = list() #mapManager.list(map.map)
 
 
 
-def carProcess(fr,to, carsPosLoc, carsPosLockLoc):
-    redCar = car(fr,to, carsPosLoc, carsPosLockLoc, False)
+def carProcess(fr,to, carsPosLoc, carsPosLockLoc, isPolice = False):
+    redCar = car(fr,to, carsPosLoc, carsPosLockLoc, isPolice)
     while True:
         #gameDisplay.blit(redCar.image)
         #gameDisplay.blit(redCar.image, [redCar.posX, redCar.posY])
@@ -53,13 +53,16 @@ def Main():
             t = f
             while f == t:
                 t = random.randrange(len(map.map))
-            if (i == 0):
-                f = 6
-                t = 2
-            if (i == 1):
-                f = 0
-                t = 2
-            carProcess(f,t, carsPos, carsPosLock)    #100,100,[Map[0], Map[2], Map[3], Map[1]])
+            # if (i == 0):
+            #     f = 6
+            #     t = 2
+            # if (i == 1):
+            #     f = 0
+            #     t = 2
+            if i == 8:
+                carProcess(f,t,carsPos,carsPosLock, True)
+            else:
+                carProcess(f,t, carsPos, carsPosLock)    #100,100,[Map[0], Map[2], Map[3], Map[1]])
             
             return
         children.append(pid)
@@ -68,15 +71,15 @@ def Main():
     #     carProcess(400,100,[Map[2], Map[3], Map[1], Map[0]])
     #     return
     # children.append(pid)
-    pid = os.fork()
-    if pid == 0:
-        f = random.randrange(len(map.map))
-        print("f: ", f, " len(map.map): ", len(map.map))
-        t = f
-        p = car(f,t, carsPos, carsPosLock, True)
-        while True:
-            p.move()
-            time.sleep(0.19)
+    # pid = os.fork()
+    # if pid == 0:
+    #     f = random.randrange(len(map.map))
+    #     print("f: ", f, " len(map.map): ", len(map.map))
+    #     t = f
+    #     p = car(f,t, carsPos, carsPosLock, True)
+    #     while True:
+    #         p.move()
+    #         time.sleep(0.19)
 
     
     while True:

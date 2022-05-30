@@ -43,7 +43,7 @@ class intersection(pygame.sprite.Sprite):
     Doesn't return anything
     ----------------------------------------------------
     """
-    # print("adding: ", car)
+    # print("adding: ", car, " going to: ",goingTo)
     if acquireLock:
       self.outgoingLock.acquire()
     self.outgoing.append((car, goingTo))
@@ -69,8 +69,7 @@ class intersection(pygame.sprite.Sprite):
     Doesn't return anything
     ----------------------------------------------------
     """
-    # print("removing ", car)
-    # print("goingTo ", goingTo)
+    # print("removing ", car," goingTo ", goingTo)
     if acquireLock:
       self.outgoingLock.acquire()
     self.outgoing.remove((car, goingTo))
@@ -107,7 +106,7 @@ class intersection(pygame.sprite.Sprite):
             found = self.outgoing[i][0]
             if acquireLock:
               self.outgoingLock.release()
-            print(" found: ", found)
+            # print(" found: ", found)
             return found
           # else:
           #   return None
@@ -118,7 +117,7 @@ class intersection(pygame.sprite.Sprite):
       #   return self.outgoing[0][0]
     if acquireLock:
       self.outgoingLock.release()
-    print("didn't find anything, going to ", dest, " Outgoing: ", self.outgoing, " ignore: ", ignore)
+    # print("didn't find anything, going to ", dest, " Outgoing: ", self.outgoing, " ignore: ", ignore)
     return None
 
   def getFirstOnRoadTo(self, dest, ignore = -1,acquireLock = True):
@@ -154,9 +153,12 @@ class intersection(pygame.sprite.Sprite):
 
   def getAllOnRoadTo(self,dest):
     toReturn = []
+    self.outgoingLock.acquire()
+    print("outgoing: ", self.outgoing)
     for i in range(len(self.outgoing)):
-      if self.outgoing[1] == dest:
-        toReturn.append(self.outgoing[0])
+      if self.outgoing[i][1] == dest:
+        toReturn.append(self.outgoing[i])
+    self.outgoingLock.release()
     return toReturn
 
   def __init__(self, name, position, neighbors, weights):

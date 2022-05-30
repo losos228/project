@@ -40,9 +40,12 @@ class car(pygame.sprite.Sprite):
         self.posY = map.map[self.road[0]]["position"][1]
 
         self.carsPosLock.acquire()
-        self.carsPos[self.id][0] = self.posX
-        self.carsPos[self.id][1] = self.posY
-        self.carsPos[self.id][2] = self.road[self.roadStep]
+        temp = self.carsPos[self.id]
+        temp[0] = self.posX
+        temp[1] = self.posY
+        temp[2] = self.road[self.roadStep]
+        temp[3] = bool(0)
+        self.carsPos[self.id] = temp
         self.carsPosLock.release()
 
         self.roadStep = 1
@@ -87,13 +90,43 @@ class car(pygame.sprite.Sprite):
 
 
     def stopOtherCars(self):
-        self.carsPosLock.acquire()
-        for c in map.map[self.road[self.roadStep]].getAllOnRoadTo(self.road[self.roadstep+1]):
-            if c != self.id:
-                self.carsPos[c][3] = 1
+        
+
+        if self.roadStep < len(self.road) and self.roadStep > 0:
+            self.carsPosLock.acquire()
+            toStop = map.map[self.road[self.roadStep-1]].getAllOnRoadTo(self.road[self.roadStep])
+            print("toStop: ", toStop)
+            for c in range(len(toStop)):
+                print("toStop[c] {",toStop[c][0],"}")
+                if toStop[c][0] != self.id:
+                    toSet = toStop[c][0]
+                    print("A police stopping {",toSet,"} self.carsPos[",toSet,"][3] is {", self.carsPos[toSet][3], "} toSet is {", toSet,"}")
+                    temp = self.carsPos[toSet]
+                    temp[3] += 1 #not self.carsPos[toSet][4]
+                    self.carsPos[toSet] = temp
+                    # self.carsPos[toSet][2] = self.carsPos[toSet][2] +len(map.map)
+                    print("self.carsPos[toSet] {",self.carsPos[toSet],"}")
+                    print("B police stopping {",toSet,"} self.carsPos[",toSet,"][3] is {", self.carsPos[toSet][3], "} toSet is {", toSet,"}")
 
 
-        self.carsPosLock.release()
+            self.carsPosLock.release()
+    def startOtherCars(self):
+        if self.roadStep > 0:
+            self.carsPosLock.acquire()
+            toStart = map.map[self.road[self.roadStep-1]].getAllOnRoadTo(self.road[self.roadStep])
+            print("toStart: ", toStart)
+            for c in range(len(toStart)):
+                print("toStart[c] {",toStart[c][0],"}")
+                if toStart[c][0] != self.id:
+                    toSet = toStart[c][0]
+                    print("A police stopping {",toSet,"} self.carsPos[",toSet,"][3] is {", self.carsPos[toSet][3], "} toSet is {", toSet,"}")
+                    temp = self.carsPos[toSet]
+                    temp[3] -= 1 #not self.carsPos[toSet][4]
+                    self.carsPos[toSet] = temp
+                    # self.carsPos[toSet][2] = self.carsPos[toSet][2] +len(map.map)
+                    print("self.carsPos[toSet] {",self.carsPos[toSet],"}")
+                    print("B police stopping {",toSet,"} self.carsPos[",toSet,"][3] is {", self.carsPos[toSet][3], "} toSet is {", toSet,"}")
+            self.carsPosLock.release()
 
 
     def changeDirection(self):
@@ -112,13 +145,16 @@ class car(pygame.sprite.Sprite):
         """
         if self.isPolice:
             self.stopOtherCars()
+
         self.posX = map.map[self.road[self.roadStep-1]]["position"][0]
         self.posY = map.map[self.road[self.roadStep-1]]["position"][1]
 
         self.carsPosLock.acquire()
-        self.carsPos[self.id][0] = self.posX
-        self.carsPos[self.id][1] = self.posY
-        self.carsPos[self.id][2] = self.road[self.roadStep]
+        a = self.carsPos[self.id]
+        a[0] = self.posX
+        a[1] = self.posY
+        a[2] = self.road[self.roadStep]
+        self.carsPos[self.id] = a
         self.carsPosLock.release()
 
 
@@ -277,14 +313,14 @@ class car(pygame.sprite.Sprite):
                     self.carsPosLock.acquire()
                     if distance(self.carsPos[car], map.map[self.road[roadStep]]["position"]) < self.length * 6:
                         self.carsPosLock.release()
-                        print("Id: ",self.id, " Stoping because right hand not free"," self.prev: ",self.prev)
+                        # print("Id: ",self.id, " Stoping because right hand not free"," self.prev: ",self.prev)
                         return True
-                    else:
+                    # else:
                         # print("aaaa")
-                        print("distance of the car on the right to the intersection",distance(self.carsPos[car], map.map[self.road[roadStep]]["position"]))
+                        # print("distance of the car on the right to the intersection",distance(self.carsPos[car], map.map[self.road[roadStep]]["position"]))
                     self.carsPosLock.release()
-                else:
-                    print("Id: ",self.id," no car on right")
+                # else:
+                    # print("Id: ",self.id," no car on right")
         # print(map.map[self.road[roadStep]].neighborsFrom)
         return False
 
@@ -303,15 +339,16 @@ class car(pygame.sprite.Sprite):
         if False the car can enter the intersection.
         ----------------------------------------------------
         """
-        lastOn = map.map[self.road[roadStep]].getLastOnRoadTo(self.road[roadStep+1], self.id)
-        # self.prev = lastOn
-        self.carsPosLock.acquire()
-        if lastOn != None and distance(self.carsPos[lastOn], map.map[self.road[roadStep]]["position"]) < self.length *1.2:
+        if roadStep >= 0 and roadStep < len(self.road)-1:
+            lastOn = map.map[self.road[roadStep]].getLastOnRoadTo(self.road[roadStep+1], self.id)
+            # self.prev = lastOn
+            self.carsPosLock.acquire()
+            if lastOn != None and distance(self.carsPos[lastOn], map.map[self.road[roadStep]]["position"]) < self.length *1.2:
+                self.carsPosLock.release()
+                # print("Id: ",self.id, " No space to leave intersection! intersection: ", self.road[roadStep] ,
+                # "\n lastOn: ", lastOn, " distance to intersecton: ",distance(self.carsPos[lastOn], map.map[self.road[roadStep]]["position"]))
+                return True
             self.carsPosLock.release()
-            # print("Id: ",self.id, " No space to leave intersection! intersection: ", self.road[roadStep] ,
-            # "\n lastOn: ", lastOn, " distance to intersecton: ",distance(self.carsPos[lastOn], map.map[self.road[roadStep]]["position"]))
-            return True
-        self.carsPosLock.release()
         return False
 
     def checkMoveSpace(self):
@@ -350,11 +387,16 @@ class car(pygame.sprite.Sprite):
         
         if not self.isPolice:
             self.carsPosLock.acquire()
-            self.stoppedByPolice = self.carsPos[self.id][3] == 1
+            if self.carsPos[self.id][3] == 1:
+                self.stoppedByPolice = True
+            else:
+                self.stoppedByPolice = False
+            if self.stoppedByPolice:
+                print(self.id, " stopped by police")
             self.carsPosLock.release()
             self.stoppedByNoMoveSpace = self.checkMoveSpace()
-        else:
-            print(self.id," is police")
+        # else:
+        #     print(self.id," is police")
         if not self.stoppedByRightBusy and not self.stoppedByNoLeaveSpace and not self.stoppedByNoMoveSpace and not self.stoppedByPolice:
             if(self.roadStep > len(self.road)-1):
                 # print("a")
@@ -420,11 +462,16 @@ class car(pygame.sprite.Sprite):
                     if(not diffWithin(self.posX, self.nextStep["position"][0], self.currRoadLen*0.05)):
                         
                         # print ("a")
-                        self.posX = self.posX+self.dirX
+                        if self.isPolice:
+                            self.posX = self.posX+2*self.dirX
+                        else:
+                            self.posX = self.posX+self.dirX
                         self.carsPosLock.acquire()
-                        self.carsPos[self.id][0] = self.posX
-                        self.carsPos[self.id][1] = self.posY
-                        self.carsPos[self.id][2] = self.road[self.roadStep]
+                        a = self.carsPos[self.id]
+                        a[0] = self.posX
+                        a[1] = self.posY
+                        a[2] = self.road[self.roadStep]
+                        self.carsPos[self.id] = a
                             # if(self.id == 1):
                             #     print("id: ",self.id )
                             #     print("car positions(after x): ", self.carsPos)
@@ -433,27 +480,36 @@ class car(pygame.sprite.Sprite):
                         #moved = 1
                     if(not diffWithin(self.posY, self.nextStep["position"][1], self.currRoadLen*0.05)):
                         # print ("b")
-                        self.posY = self.posY+self.dirY
+                        if self.isPolice:
+                            self.posY = self.posY+2*self.dirY
+                        else:
+                            self.posY = self.posY+self.dirY
                         self.carsPosLock.acquire()
-                        self.carsPos[self.id][0] = self.posX
-                        self.carsPos[self.id][1] = self.posY
-                        self.carsPos[self.id][2] = self.road[self.roadStep]
+                        a = self.carsPos[self.id]
+                        a[0] = self.posX
+                        a[1] = self.posY
+                        a[2] = self.road[self.roadStep]
+                        self.carsPos[self.id] = a
                             # print("id: ",self.id )
                             # print("car positions(after y): ", self.carsPos)
+                        self.carsPos.append([0,0,-1,0])
                         self.carsPosLock.release()
                         # moved = 1
                 else:
                     # print("c")
-
+                    if self.isPolice:
+                        self.startOtherCars()
                     if self.addedToOutgoing:
                         map.map[self.road[self.roadStep-1]].removeFromOutgoing(self.id, self.road[self.roadStep])
                         self.addedToOutgoing = 0
                     self.posX = self.nextStep["position"][0] - self.length * self.dirX
                     self.posY = self.nextStep["position"][1] - self.length * self.dirY
                     self.carsPosLock.acquire()
-                    self.carsPos[self.id][0] = self.dirX
-                    self.carsPos[self.id][1] = self.dirY
-                    self.carsPos[self.id][2] = self.road[self.roadStep]
+                    a = self.carsPos[self.id]
+                    a[0] = self.dirX
+                    a[1] = self.dirY
+                    a[2] = self.road[self.roadStep]
+                    self.carsPos[self.id] = a
                     self.carsPosLock.release()
 
                     self.roadStep = self.roadStep+1
@@ -485,19 +541,19 @@ class car(pygame.sprite.Sprite):
                     self.count = 5
                 if self.count == 0:
                     self.stoppedByRightBusy = False
-                print("Id: ",self.id," stoped, self.stoppedByRightBusy: ", self.stoppedByRightBusy)
+                # print("Id: ",self.id," stoped, self.stoppedByRightBusy: ", self.stoppedByRightBusy)
             
             if self.stoppedByNoLeaveSpace:
                 self.stoppedByNoLeaveSpace = self.checkLeaveSpace(self.roadStep-1)
-                if self.stoppedByNoLeaveSpace:
-                    print("Id: ",self.id," stoped, self.stoppedByNoLeaveSpace: ", self.stoppedByNoLeaveSpace)
+                # if self.stoppedByNoLeaveSpace:
+                    # print("Id: ",self.id," stoped, self.stoppedByNoLeaveSpace: ", self.stoppedByNoLeaveSpace)
             else:
                 self.stoppedByNoLeaveSpace = self.checkLeaveSpace(self.roadStep-1)
 
             if self.stoppedByNoMoveSpace:
                 self.stoppedByNoMoveSpace = self.checkMoveSpace()
-                if not self.stoppedByNoMoveSpace:
-                    print("Id: ", self.id, " stopped by no move space")
+                # if not self.stoppedByNoMoveSpace:
+                    # print("Id: ", self.id, " stopped by no move space")
             else:
                 self.stoppedByNoMoveSpace = self.checkMoveSpace()
             
