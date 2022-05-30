@@ -3,6 +3,7 @@ from random import randrange
 import pygame
 import os
 import multiprocessing as mp
+from commons import distance
 
 #import networkx as nx
 
@@ -151,15 +152,34 @@ class intersection(pygame.sprite.Sprite):
       self.outgoingLock.release()
     return None
 
-  def getAllOnRoadTo(self,dest):
+  def getAllOnRoadTo(self, dest):
     toReturn = []
     self.outgoingLock.acquire()
-    print("outgoing: ", self.outgoing)
+    # print("outgoing: ", self.outgoing)
     for i in range(len(self.outgoing)):
       if self.outgoing[i][1] == dest:
         toReturn.append(self.outgoing[i])
     self.outgoingLock.release()
     return toReturn
+
+  def getWeight(self, goingTo):
+    i = 0
+    found = -1
+    for i in range(len(self.neighbors)):
+      if self.neighbors[i] == goingTo:
+        found = i
+    if found != -1:
+      dist = distance(map[found]["position"], self["position"])
+      onRoad = len(self.getAllOnRoadTo(goingTo))
+      if onRoad == 0:
+        weight = dist
+      else:
+        weight = dist * len(self.getAllOnRoadTo(goingTo))
+    else:
+      weight = 99999999999
+
+
+    return weight
 
   def __init__(self, name, position, neighbors, weights):
     self.name = name

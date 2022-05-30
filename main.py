@@ -21,7 +21,7 @@ carsPosManager = mp.Manager()
 carsPosLock = carsPosManager.Lock()
 carsPos = carsPosManager.list() #posX, posY, goingTo
 
-map.map = map.generate_map(3, 200, 40, 40)
+map.map = map.generate_map(4, 200, 40, 40)
 map.draw_map(map.map)
 background = pygame.image.load("images/background.jpg")
 
@@ -37,7 +37,7 @@ def carProcess(fr,to, carsPosLoc, carsPosLockLoc, isPolice = False):
         #gameDisplay.blit(redCar.image)
         #gameDisplay.blit(redCar.image, [redCar.posX, redCar.posY])
         redCar.move()
-        time.sleep(0.019)
+        time.sleep(0.015)
 
 
 def Main():
@@ -45,7 +45,7 @@ def Main():
     print("map length: ", len(map.map))
     #redCar = car(100,100,[Map[0], Map[2], Map[3], Map[1]])
     children = []
-    for i in range(10):
+    for i in range(20):
         pid = os.fork()
         if pid == 0:
             f = random.randrange(len(map.map))
@@ -59,7 +59,7 @@ def Main():
             # if (i == 1):
             #     f = 0
             #     t = 2
-            if i == 8:
+            if i % 10 == 0:
                 carProcess(f,t,carsPos,carsPosLock, True)
             else:
                 carProcess(f,t, carsPos, carsPosLock)    #100,100,[Map[0], Map[2], Map[3], Map[1]])

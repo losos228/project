@@ -217,11 +217,11 @@ class car(pygame.sprite.Sprite):
                 #print("neighbour: ",neighbour )
                 #if(table[neighbour][1]!= 99999999999):
                 if neighbour in map.map[curr]["neighbors"]:
-                    dist = distance(map.map[curr]["position"], map.map[table[neighbour][0]]["position"])
-                    if(table[neighbour][1] > table[curr][1]+dist and table[neighbour][3]!= 1):
+                    weight = map.map[curr].getWeight(neighbour)#distance(map.map[curr]["position"], map.map[table[neighbour][0]]["position"])
+                    if(table[neighbour][1] > table[curr][1]+weight and table[neighbour][3]!= 1):
                         if neighbour == to:
                             routeFound = 1
-                        table[neighbour][1] = table[curr][1]+dist
+                        table[neighbour][1] = table[curr][1]+weight
                         table[neighbour][2] = curr
             # print("curr: ", curr)
             # print("curr neighbors: ", map.map[curr]["neighbors"])
