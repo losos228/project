@@ -121,6 +121,49 @@ class intersection(pygame.sprite.Sprite):
     # print("didn't find anything, going to ", dest, " Outgoing: ", self.outgoing, " ignore: ", ignore)
     return None
 
+  def getLastOnRoadToBefore(self, dest, before, acquireLock = True):
+    """
+    ----------------------------------------------------
+    Function to:
+    Get the last car on road to a specified intersection
+    ----------------------------------------------------
+    Parameters:
+    dest(int): the position in the map of the intersection on
+      road to which the desired car is
+    before(int): a car before whitch to find the other car
+    acquireLock(bool, optional): whether or not to acquire the
+      lock to the outgoing table
+    ----------------------------------------------------
+    Returns:
+    ----------------------------------------------------
+    """
+    if acquireLock:
+      self.outgoingLock.acquire()
+    if len(self.outgoing) > 0:
+      foundBefore = 0
+      for i in range(len(self.outgoing)-1, -1, -1):
+        # print(ignore, " checking: ", i)
+        if(self.outgoing[i][1] == dest):
+          if self.outgoing[i][0] == before:
+            foundBefore = 1
+          if foundBefore:
+            found = self.outgoing[i][0]
+            if acquireLock:
+              self.outgoingLock.release()
+            # print(" found: ", found)
+            return found
+          # else:
+          #   return None
+      # if(self.outgoing[0][1] == dest and self.outgoing[0][0] != ignore):
+      #   if acquireLock:
+      #     self.outgoingLock.release()
+      #   print("found in first place: ", self.outgoing[0][0])
+      #   return self.outgoing[0][0]
+    if acquireLock:
+      self.outgoingLock.release()
+    # print("didn't find anything, going to ", dest, " Outgoing: ", self.outgoing, " ignore: ", ignore)
+    return None
+
   def getFirstOnRoadTo(self, dest, ignore = -1,acquireLock = True):
     """
     ----------------------------------------------------

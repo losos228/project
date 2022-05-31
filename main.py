@@ -39,11 +39,10 @@ def carProcess(fr,to, carsPosLoc, carsPosLockLoc, isPolice = False):
         redCar.move()
         time.sleep(0.015)
 
+# def refreshScreenProcess():
+#     while True:
 
-def Main():
-    #pygame.display.update()
-    print("map length: ", len(map.map))
-    #redCar = car(100,100,[Map[0], Map[2], Map[3], Map[1]])
+def spawnCars():
     children = []
     for i in range(20):
         pid = os.fork()
@@ -53,33 +52,36 @@ def Main():
             t = f
             while f == t:
                 t = random.randrange(len(map.map))
-            # if (i == 0):
-            #     f = 6
-            #     t = 2
-            # if (i == 1):
-            #     f = 0
-            #     t = 2
-            if i % 10 == 0:
+            if i % 5 == 0:
                 carProcess(f,t,carsPos,carsPosLock, True)
             else:
                 carProcess(f,t, carsPos, carsPosLock)    #100,100,[Map[0], Map[2], Map[3], Map[1]])
             
             return
         children.append(pid)
-    # pid = os.fork()
+    return children
+
+def spawnCars2():
+    children = []
+    for i in range(10):
+        time.sleep(0.5)
+        pid = os.fork()
+        if pid == 0:
+            carProcess(0,len(map.map)-1, carsPos, carsPosLock)
+            return
+        children.append(pid)
+    return children
+
+def Main():
+    print ("Kinga :)")
+    print("map length: ", len(map.map))
+    # pid = os.fork
     # if pid == 0:
-    #     carProcess(400,100,[Map[2], Map[3], Map[1], Map[0]])
-    #     return
+    #     refreshScreenProcess()
+    children = []
     # children.append(pid)
-    # pid = os.fork()
-    # if pid == 0:
-    #     f = random.randrange(len(map.map))
-    #     print("f: ", f, " len(map.map): ", len(map.map))
-    #     t = f
-    #     p = car(f,t, carsPos, carsPosLock, True)
-    #     while True:
-    #         p.move()
-    #         time.sleep(0.19)
+    children.extend(spawnCars2())
+    
 
     
     while True:
