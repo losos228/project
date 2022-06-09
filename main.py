@@ -1,4 +1,4 @@
-from email.errors import FirstHeaderLineIsContinuationDefect
+#from email.errors import FirstHeaderLineIsContinuationDefect
 from math import dist
 import pygame
 import time
@@ -16,12 +16,19 @@ pygame.init()
 # carsManager = mp.Manager()
 # carsLock = carsManager.Lock()
 # cars = carsManager.list()
-
+WIDTH, HEIGHT = 1920, 1080
 carsPosManager = mp.Manager()
 carsPosLock = carsPosManager.Lock()
 carsPos = carsPosManager.list() #posX, posY, goingTo
 
-map.map = map.generate_map(4, 200, 40, 40)
+
+num_of_intersections = 4
+distance_between_intersections = 200
+center_of_map = distance_between_intersections*num_of_intersections/2
+offsetX = WIDTH/2 - center_of_map
+offsetY = HEIGHT/2 - center_of_map #+ 100
+
+map.map = map.generate_map(num_of_intersections, distance_between_intersections, offsetX, offsetY)
 map.draw_map(map.map)
 background = pygame.image.load("images/background.jpg")
 
@@ -92,6 +99,7 @@ def Main():
                 sys.exit()
         pygame.display.update()
         gameDisplay.blit(background, [0,0])
+        #map.map.update_weights_of(map.map)
         # for child in children:
         #     signal.pidfd_send_signal(child, signal.SIGUSR1)
         time.sleep(0.02)

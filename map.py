@@ -205,8 +205,12 @@ class intersection(pygame.sprite.Sprite):
     self.outgoingLock.release()
     return toReturn
 
-  def getWeight(self, goingTo):
-    i = 0
+  def set_weight(self, __weight):
+    pass
+
+  def get_weight(self, goingTo):
+    print(f"here ->>>>>>>>>>>>>>>>>>>>>>>>>>>>. {map[1].name} - {map[1].position} - {map[1].weights}")
+    #i = 0
     found = -1
     for i in range(len(self.neighbors)):
       if self.neighbors[i] == goingTo:
@@ -304,35 +308,41 @@ def generate_map(noi, dbi, offsetX = 0, offsetY = 0, is_fully_connected = True):
       if(idx == 0 and idy == 0):
         print(f"X {idx}, Y {idy}")
         __neighbors.extend([1, noi])
+        __weights.extend([1, 1])
         #print(f"neighbors are {__neighbors}")
         __map, __node_name = map_helper(__map, __name, __position, __neighbors, __weights, __node_name)
 
       elif(idx == 0 and idy == noi-1):
         print(f"X {idx}, Y {idy}")
         __neighbors.extend([noi-2, 2*noi-1])
+        __weights.extend([1, 1])
         #print(f"neighbors are {__neighbors}")
         __map, __node_name = map_helper(__map, __name, __position, __neighbors, __weights, __node_name)
 
       elif(idx == noi-1 and idy == 0):
         print(f"X {idx}, Y {idy}")
         __neighbors.extend([noi*(noi-2), noi*(noi-1)+1])
+        __weights.extend([1, 1])
         #print(f"neighbors are {__neighbors}")
         __map, __node_name = map_helper(__map, __name, __position, __neighbors, __weights, __node_name)
 
       elif(idx == noi-1 and idy == noi-1):
         print(f"X {idx}, Y {idy}")
         __neighbors.extend([noi*(noi-1)-1, noi**2-2])
+        __weights.extend([1, 1])
         #print(f"neighbors are {__neighbors}")
         __map, __node_name = map_helper(__map, __name, __position, __neighbors, __weights, __node_name)
 
       # Other borders
       elif(idx == 0 and 1 <= idy <= noi-2):
         __neighbors.extend([idy-1, idy+1, idy+noi])
+        __weights.extend([1, 1, 1])
         __map, __node_name = map_helper(__map, __name, __position, __neighbors, __weights, __node_name)
 
       elif(1 <= idx <= noi-2 and idy == 0):
       #  print(f"X {idx}, Y {idy}")
         __neighbors.extend([__node_name-noi, __node_name+1, __node_name+noi])
+        __weights.extend([1, 1, 1])
         __map, __node_name = map_helper(__map, __name, __position, __neighbors, __weights, __node_name)
 
       elif(idx == noi-1 and 1 <= idy <= noi-2):
@@ -342,11 +352,13 @@ def generate_map(noi, dbi, offsetX = 0, offsetY = 0, is_fully_connected = True):
 
       elif(1 <= idx <= noi-2 and idy == noi-1):
         __neighbors.extend([__node_name-noi, __node_name-1, __node_name+noi])
+        __weights.extend([1, 1, 1])
         __map, __node_name = map_helper(__map, __name, __position, __neighbors, __weights, __node_name)
 
       # Everything else - center intersections with 4 edges
       else:
         __neighbors.extend([__node_name-noi, __node_name-1, __node_name+1, __node_name+noi])
+        __weights.extend([1, 1, 1, 1])
         __map, __node_name = map_helper(__map, __name, __position, __neighbors, __weights, __node_name)
 
       """
@@ -378,7 +390,10 @@ def generate_map(noi, dbi, offsetX = 0, offsetY = 0, is_fully_connected = True):
 #y# "v00", "v10",
 #|# "v01", "v11"
 #v
-
+roads = {
+  (0, 1): 2,
+  (0, 2): 1
+}
 map = [
   #            name   position    neighbors    weights
   intersection("v0",  (50, 50),   [1, 4],      [2, 3]),
@@ -399,6 +414,31 @@ map = [
   intersection("v14",  (350, 150), [9, 15],    [1, 1]),
   intersection("v15",  (350, 250), [14,  12],  [1, 1]),
 ]
+
+map_scenario_2 = [
+  #            name   position    neighbors    weights
+  intersection("v0",  (100, 100),   [1],      [2, 3]),
+  intersection("v1",  (500, 100),  [0],      [1, 3]),
+]
+
+def update_weights_of(map_):
+  """
+  ----------------------------------------------------
+  Function to ...
+  ----------------------------------------------------
+  Parameters:
+    map_(list):
+  ----------------------------------------------------
+  Returns:
+    Does not return
+  ----------------------------------------------------
+  """
+  
+  # For each road:
+  # -> check amount of cars
+  # -> update weight for given equation - new_weight = old_weight*num_of_cars
+
+  return map_
 
 
 def draw_map(map_):
@@ -440,11 +480,6 @@ def draw_map(map_):
       __visited.append(__edge)
       #print(f"visited = {__visited}")
       if(__visited.count(__edge) > 1):
-        """print("here")
-        pygame.draw.line(WIN, DIMGRAY, map_[i]["position"],
-                                       map_[neighbor]["position"],
-                                       30)
-        """
         pygame.draw.line(WIN, WHITE, map_[i]["position"],
                                      map_[neighbor]["position"],
                                      2)
@@ -470,10 +505,6 @@ def draw_map(map_):
 
 def main():
 
-
-
-
-  #pygame.init()
   clock = pygame.time.Clock()
   run = True
 
@@ -485,9 +516,9 @@ def main():
   offsetX = WIDTH/2 - center_of_map
   offsetY = HEIGHT/2 - center_of_map #+ 100
 
-  new_map = generate_map(num_of_intersections, distance_between_intersections, offsetX, offsetY)
-  draw_map(new_map)
-
+  #new_map = generate_map(num_of_intersections, distance_between_intersections, offsetX, offsetY)
+  #draw_map(new_map)
+  draw_map(map_scenario_2)
   #draw_window()
 
   while run:

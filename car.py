@@ -221,7 +221,7 @@ class car(pygame.sprite.Sprite):
                 #print("neighbour: ",neighbour )
                 #if(table[neighbour][1]!= 99999999999):
                 if neighbour in map.map[curr]["neighbors"]:
-                    weight = map.map[curr].getWeight(neighbour)#distance(map.map[curr]["position"], map.map[table[neighbour][0]]["position"])
+                    weight = map.map[curr].get_weight(neighbour)#distance(map.map[curr]["position"], map.map[table[neighbour][0]]["position"])
                     if(table[neighbour][1] > table[curr][1]+weight and table[neighbour][3]!= 1):
                         if neighbour == to:
                             routeFound = 1
@@ -404,6 +404,10 @@ class car(pygame.sprite.Sprite):
         # print("self.prev == None")
         return False
 
+
+    def update_road_weight(self, to):
+        pass
+
     def move(self):
         """
         ----------------------------------------------------
@@ -450,7 +454,9 @@ class car(pygame.sprite.Sprite):
                 # self.posX = self.nextStep["position"][0]
                 # self.posY = self.nextStep["position"][1]
                 self.calculateRoute(self.destination, to)
-                        
+
+                self.update_road_weight(to)
+
                 self.currRoadLen = distance((self.posX, self.posY), self.nextStep["position"])
                 # print("distance ", distance((self.posX, self.posY), self.nextStep["position"]))
                 self.changeDirection()
