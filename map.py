@@ -8,7 +8,7 @@ from commons import distance
 #import networkx as nx
 
 FPS = 60
-WIDTH, HEIGHT = 1920, 1080
+WIDTH, HEIGHT = 1080, 1080
 # Nodes radius
 RADIUS = 35
 # Distance between intersections
@@ -196,6 +196,21 @@ class intersection(pygame.sprite.Sprite):
     return None
 
   def getAllOnRoadTo(self, dest):
+    """
+    ----------------------------------------------------
+    Function to:
+    Get all the cars going to a specified intersection
+    ----------------------------------------------------
+    Parameters:
+    dest(int): the position in the map of the intersection on
+      road to which to get all the cars
+    ----------------------------------------------------
+    Returns:
+    (int array) the position in the cars table of all the
+    cars on the road
+    None if there is no car on the road
+    ----------------------------------------------------
+    """
     toReturn = []
     self.outgoingLock.acquire()
     # print("outgoing: ", self.outgoing)
@@ -208,20 +223,33 @@ class intersection(pygame.sprite.Sprite):
   def set_weight(self, __weight):
     pass
 
-  def get_weight(self, goingTo):
+  def getWeight(self, dest):
+    """
+    ----------------------------------------------------
+    Function to:
+    Get weight of the road to a specific intersection
+    ----------------------------------------------------
+    Parameters:
+    dest(int): the position in the map of the intersection 
+      at the end of the road which weight is desired 
+    ----------------------------------------------------
+    Returns:
+    (int) the wieght of the specified road
+    ----------------------------------------------------
+    """
     print(f"here ->>>>>>>>>>>>>>>>>>>>>>>>>>>>. {map[1].name} - {map[1].position} - {map[1].weights}")
-    #i = 0
+    i = 0
     found = -1
     for i in range(len(self.neighbors)):
-      if self.neighbors[i] == goingTo:
+      if self.neighbors[i] == dest:
         found = i
     if found != -1:
-      dist = distance(map[found]["position"], self["position"])
-      onRoad = len(self.getAllOnRoadTo(goingTo))
+      dist = 1 #distance(map[found]["position"], self["position"])
+      onRoad = len(self.getAllOnRoadTo(dest))
       if onRoad == 0:
         weight = dist
       else:
-        weight = dist * len(self.getAllOnRoadTo(goingTo))
+        weight = dist * (onRoad+1)
     else:
       weight = 99999999999
 
@@ -471,6 +499,7 @@ def draw_map(map_):
 
 
     for neighbor in map_[i]["neighbors"]:
+      map_[neighbor].neighborsFrom.append(i)
       __edge = []
       #print(f"i, before added to edge = {i}")
       __edge.append(i)
