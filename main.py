@@ -22,15 +22,15 @@ carsPosLock = carsPosManager.Lock()
 carsPos = carsPosManager.list() #posX, posY, goingTo
 
 
-num_of_intersections = 4
-distance_between_intersections = 200
-center_of_map = distance_between_intersections*num_of_intersections/2
-offsetX = WIDTH/2 - center_of_map
-offsetY = HEIGHT/2 - center_of_map #+ 100
+# num_of_intersections = 4
+# distance_between_intersections = 200
+# center_of_map = distance_between_intersections*num_of_intersections/2
+# offsetX = WIDTH/2 - center_of_map
+# offsetY = HEIGHT/2 - center_of_map #+ 100
 
-map.map = map.generate_map(num_of_intersections, distance_between_intersections, offsetX, offsetY)
-map.draw_map(map.map)
-background = pygame.image.load("images/background.jpg")
+# map.map = map.generate_map(num_of_intersections, distance_between_intersections, offsetX, offsetY)
+# map.draw_map(map.map)
+# background = pygame.image.load("images/background.jpg")
 
 # mapManager = mp.Manager()
 # mapLock = mapManager.Lock()
@@ -177,7 +177,7 @@ def Main():
     print ("Kinga :)")
     print("map length: ", len(map.map))
     children = []
-    scenario = 9
+    scenario = 7
 #   1 for showcase of police
 #   2 for showcase of road weight update
 

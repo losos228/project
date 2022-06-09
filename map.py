@@ -223,7 +223,7 @@ class intersection(pygame.sprite.Sprite):
   def set_weight(self, __weight):
     pass
 
-  def getWeight(self, dest):
+  def get_weight(self, dest):
     """
     ----------------------------------------------------
     Function to:

@@ -66,6 +66,7 @@ class car(pygame.sprite.Sprite):
         self.stoppedByNoLeaveSpace = False
         self.stoppedByNoMoveSpace = False
         self.stoppedByPolice = False
+        self.stoppedByScheduler = False
 
         self.count = 5
         print("init finished")
